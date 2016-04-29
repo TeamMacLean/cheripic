@@ -1,8 +1,14 @@
+require 'cheripic/cmd'
 require 'cheripic/version'
 
 # set up a golbal logger object to access across module
 require 'yell'
 module Cheripic
+
+  # custom error handling
+  class CheripicError < StandardError; end
+  class CheripicIOError < CheripicError; end
+  class CheripicArgError < CheripicError; end
 
   # Define a logger and pass `Object` as name.
   # Yell adds this logger to the repository where you can access it later on.
