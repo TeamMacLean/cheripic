@@ -1,5 +1,19 @@
-require "cheripic/version"
+require 'cheripic/version'
 
+# set up a golbal logger object to access across module
+require 'yell'
 module Cheripic
-  # Your code goes here...
-end
+
+  # Define a logger and pass `Object` as name.
+  # Yell adds this logger to the repository where you can access it later on.
+  format = Yell::Formatter.new('[%5L] %d : %m', '%Y-%m-%d %H:%M:%S')
+  Yell.new(:format => format) do |l|
+    l.level = :info
+    l.name = Object
+    l.adapter STDOUT, level: [:debug, :info, :warn]
+    l.adapter STDERR, level: [:error, :fatal]
+  end
+  # Enable logging for the class that (almost) every Ruby class inherits from
+  Object.send :include, Yell::Loggable
+
+end # Cheripic
