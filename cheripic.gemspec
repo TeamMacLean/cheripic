@@ -9,31 +9,28 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Shyam Rallapalli']
   spec.email         = ['ghanasyam.rallapalli@tsl.ac.uk']
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{picks causative mutation from bulks segregant sequencing}
+  spec.description   = %q{a library and commandline tool to pick causative mutation from bulks segregant sequencing}
+  spec.homepage      = 'https://github.com/shyamrallapalli/cheripic'
   spec.license       = 'MIT'
-
-  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # delete this section to allow pushing this gem to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise 'RubyGems 2.0 or newer is required to protect against public gem pushes.'
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.add_dependency 'yell', '~> 2.0.5'
+  spec.add_dependency 'trollop', '~> 2.1.2'
+  spec.add_dependency 'bio', '~> 1.5.0'
+  spec.add_dependency 'bio-samtools', '~> 2.3.3'
+  spec.add_dependency 'bio-gngm', '~> 0.2.1'
+  spec.add_dependency 'rinruby', '~> 2.0.3'
+
   spec.add_development_dependency 'bundler', '~> 1.10'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'minitest'
-  spec.add_development_dependency 'yell', '~> 2.0.5'
-  spec.add_development_dependency 'trollop', '~> 2.1.2'
-  spec.add_development_dependency 'bio', '~> 1.5.0'
-  spec.add_development_dependency 'bio-samtools', '~> 2.3.3'
-  spec.add_development_dependency 'bio-gngm', '~> 0.2.1'
-  spec.add_development_dependency 'rinruby', '~> 2.0.3'
+  spec.add_development_dependency 'minitest-reporters', '>= 1.0.17'
+  spec.add_development_dependency 'simplecov', '>= 0.8.2'
+  spec.add_development_dependency 'shoulda', '>= 3.5.0'
+  spec.add_development_dependency 'coveralls', '>= 0.7.2'
 end
