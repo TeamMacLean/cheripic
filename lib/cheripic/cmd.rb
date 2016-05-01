@@ -11,9 +11,6 @@ module Cheripic
     def initialize (args)
       @options = OpenStruct.new
       @options = parse_arguments (args)
-      if @options.examples
-        print_examples
-      end
       check_arguments
     end
 
@@ -21,6 +18,8 @@ module Cheripic
       Trollop::with_standard_exception_handling argument_parser do
         if args.empty? || args.include?('-h') || args.include?('--help')
           raise Trollop::HelpNeeded
+        elsif args.include?('--examples')
+          print_examples
         end
         argument_parser.parse args
       end
@@ -121,7 +120,7 @@ Inputs:
 3. If polyploid species, include of pileup from one or both parents
 
 USAGE:
-cheripic-mut <options>
+cheripic <options>
 
 OPTIONS:
 
@@ -141,9 +140,9 @@ OPTIONS:
     end
 
     def check_arguments
-      check_inputfiles
       check_output
       check_loglevel
+      check_inputfiles
     end
 
     # def check_input_types
@@ -166,7 +165,7 @@ OPTIONS:
             raise CheripicIOError.new "#{symbol} file, #{file} does not exist: "
           end
         else
-          raise CheripicArgError.new "Option --#{symbol} must be specified. " +
+          raise CheripicArgError.new "Options #{inputfiles}, all must be specified. " +
                                             'Try --help for help.'
         end
       end
@@ -174,34 +173,33 @@ OPTIONS:
 
     def check_output
       if Dir.exist?(@options.output)
-        msg = "#{@options.output} directory exists"
-        msg << 'please choose a different output directory name'
-        raise CheripicArgError.new msg
+        raise CheripicArgError.new "#{@options.output} directory exists" +
+                                       'please choose a different output directory name'
       end
     end
 
     def check_loglevel
-      unless %w(error info warn debug).include?(@options.log_level)
-        raise CheripicError.new "Loglevel #{@options.log_level} is not valid. " +
+      unless %w(error info warn debug).include?(@options.loglevel)
+        raise CheripicArgError.new "Loglevel #{@options.loglevel} is not valid. " +
                                        'It must be one of: error, info, warn, debug.'
       end
-      logger.level = Yell::Level.new @options.log_level.to_sym
+      logger.level = Yell::Level.new @options.loglevel.to_sym
     end
 
-    def run
-      @options.output = File.expand_path @options.output
-      FileUtils.mkdir_p @options.output
-      Dir.chdir @options.output
-      analyse_bulks
-    end
-
-    def analyse_bulks
-      assembly = @options.assembly
-      logger.info "Loading assembly: #{assembly}"
-      # a = Assembly.new assembly
-      logger.info "Analysing assembly: #{assembly}"
-
-    end
+    # def run
+    #   @options.output = File.expand_path @options.output
+    #   FileUtils.mkdir_p @options.output
+    #   Dir.chdir @options.output
+    #   analyse_bulks
+    # end
+    #
+    # def analyse_bulks
+    #   assembly = @options.assembly
+    #   logger.info "Loading assembly: #{assembly}"
+    #   # a = Assembly.new assembly
+    #   logger.info "Analysing assembly: #{assembly}"
+    #
+    # end
 
   end # Cmd
 
