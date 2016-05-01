@@ -27,9 +27,10 @@ module Cheripic
     end
 
     def argument_parser
+      cmds = self
       Trollop::Parser.new do
-        banner self.help_message
-        opt :fasta, 'Assembly file in FASTA format',
+        banner cmds.help_message
+        opt :assembly, 'Assembly file in FASTA format',
             :short => '-f',
             :type => String
         opt :input_format, 'bulk and parent alignment file format types - set either pileup or bam',
@@ -37,10 +38,10 @@ module Cheripic
             :type => String,
             :default => 'pileup'
         opt :mut_bulk, 'Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1',
-            :short => '-b1',
+            :short => '-a',
             :type => String
         opt :bg_bulk, 'Pileup or sorted BAM file alignments from background/wildtype bulk 2',
-            :short => '-b2',
+            :short => '-b',
             :type => String
         opt :output, 'Directory to store results, will be created if not existing',
             :default => 'cheripic_results'
@@ -91,24 +92,24 @@ module Cheripic
             :type => FalseClass,
             :default => false
         opt :mut_parent, 'Pileup or sorted BAM file alignments from mutant/trait of interest parent',
-            :short => '-p1',
+            :short => '-p',
             :type => String,
             :default => ''
         opt :bg_parent, 'Pileup or sorted BAM file alignments from background/wildtype parent',
-            :short => '-p2',
+            :short => '-r',
             :type => String,
             :default => ''
         opt :br_adjust, 'factor added to hemi snp frequency of each parent to adjust for bfr calculations',
             :type => Float,
             :default => 0.05
-        opt :examples, 'Show some example commands with explanation'
+        opt :examples, 'shows some example commands with explanation'
       end
     end
 
     def help_message
       <<-EOS
 
-Cheripic-Mut v#{Cheripic::VERSION.dup}
+Cheripic v#{Cheripic::VERSION.dup}
 Authors: Shyam Rallapalli and Dan MacLean
 
 Description: Candidate mutation and closely linked marker selection for non reference genomes
@@ -130,18 +131,9 @@ OPTIONS:
     def print_examples
       msg = <<-EOS
 
-    Cheripic-mut v#{Cheripic::VERSION.dup}
+    Cheripic v#{Cheripic::VERSION.dup}
 
     EXAMPLE COMMANDS:
-
-    # basic assembly metrics only
-    cheripic-mut --assembly contigs.fa
-
-    # basic and reference-based metrics with 8 threads
-    cheripic-mut --assembly contigs.fa --reference ref.fa --threads 8
-
-    # contig and read-based metrics for two assemblies with 32 threads
-    cheripic-mut --assembly one.fa,two.fa --left l.fq --right r.fq --threads 32
 
       EOS
       puts msg.split("\n").map{ |line| line.lstrip }.join("\n")
@@ -154,34 +146,29 @@ OPTIONS:
       check_loglevel
     end
 
-    def check_input_types
-      if @options.input_format == 'vcf'
-
-      end
-    end
+    # def check_input_types
+    #   if @options.input_format == 'vcf'
+    #
+    #   end
+    # end
 
     def check_inputfiles
       if @options.polyploidy
-        inputfiles = %w[assembly, mut_bulk, bg_bulk, mut_parent, bg_parent]
+        inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
       else
-        inputfiles = %w[assembly, mut_bulk, bg_bulk]
+        inputfiles = %i{assembly mut_bulk bg_bulk}
       end
-      inputfiles.each do | file |
-        check_file(@options, file.to_sym)
-      end
-    end
-
-    def check_file(options, symbol)
-      if options.respond_to?(symbol)
-        file = options.send(symbol)
-        options[symbol] = File.expand_path(file)
-        unless File.exist?(file)
-          raise CheripicIOError.new "#{symbol.to_s} file does not exist: " +
-                                           " #{file}"
+      inputfiles.each do | symbol |
+        if @options[symbol]
+          file = @options[symbol]
+          @options[symbol] = File.expand_path(file)
+          unless File.exist?(file)
+            raise CheripicIOError.new "#{symbol} file, #{file} does not exist: "
+          end
+        else
+          raise CheripicArgError.new "Option --#{symbol} must be specified. " +
+                                            'Try --help for help.'
         end
-      else
-        raise CheripicArgError.new "Option --#{symbol.to_s} must be specified. " +
-                                          'Try --help for help.'
       end
     end
 
@@ -194,7 +181,7 @@ OPTIONS:
     end
 
     def check_loglevel
-      unless %w[error info warn debug].include?(@options.log_level)
+      unless %w(error info warn debug).include?(@options.log_level)
         raise CheripicError.new "Loglevel #{@options.log_level} is not valid. " +
                                        'It must be one of: error, info, warn, debug.'
       end
@@ -205,11 +192,11 @@ OPTIONS:
       @options.output = File.expand_path @options.output
       FileUtils.mkdir_p @options.output
       Dir.chdir @options.output
-      analyse_bulks(@options)
+      analyse_bulks
     end
 
-    def analyse_bulks(options)
-      assembly = options.fasta
+    def analyse_bulks
+      assembly = @options.assembly
       logger.info "Loading assembly: #{assembly}"
       # a = Assembly.new assembly
       logger.info "Analysing assembly: #{assembly}"
