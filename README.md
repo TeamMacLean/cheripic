@@ -1,7 +1,9 @@
 # Cheripic
 
+[![Gem Version](https://badge.fury.io/rb/cheripic.svg)](https://badge.fury.io/rb/cheripic)
 [![Build Status](https://travis-ci.org/shyamrallapalli/cheripic.svg?branch=master)](https://travis-ci.org/shyamrallapalli/cheripic)
 [![Coverage Status](https://coveralls.io/repos/github/shyamrallapalli/cheripic/badge.svg?branch=master)](https://coveralls.io/github/shyamrallapalli/cheripic?branch=master)
+[![Code Climate](https://codeclimate.com/github/shyamrallapalli/cheripic/badges/gpa.svg)](https://codeclimate.com/github/shyamrallapalli/cheripic)
 
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cheripic`. To experiment with that code, run `bin/console` for an interactive prompt.
