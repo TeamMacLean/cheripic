@@ -8,13 +8,13 @@ module Cheripic
     require 'pathname'
     require 'ostruct'
 
-    def initialize (args)
+    def initialize(args)
       @options = OpenStruct.new
       @options = parse_arguments (args)
       check_arguments
     end
 
-    def parse_arguments (args)
+    def parse_arguments(args)
       Trollop::with_standard_exception_handling argument_parser do
         if args.empty? || args.include?('-h') || args.include?('--help')
           raise Trollop::HelpNeeded
@@ -140,18 +140,19 @@ OPTIONS:
     end
 
     def check_arguments
-      check_output
-      check_loglevel
-      check_inputfiles
+      check_output_dir
+      check_log_level
+      check_input_files
     end
 
+    # TODO: check bulk input types and process associated files
     # def check_input_types
     #   if @options.input_format == 'vcf'
     #
     #   end
     # end
 
-    def check_inputfiles
+    def check_input_files
       if @options.polyploidy
         inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
       else
@@ -171,14 +172,14 @@ OPTIONS:
       end
     end
 
-    def check_output
+    def check_output_dir
       if Dir.exist?(@options.output)
         raise CheripicArgError.new "#{@options.output} directory exists" +
                                        'please choose a different output directory name'
       end
     end
 
-    def check_loglevel
+    def check_log_level
       unless %w(error info warn debug).include?(@options.loglevel)
         raise CheripicArgError.new "Loglevel #{@options.loglevel} is not valid. " +
                                        'It must be one of: error, info, warn, debug.'
@@ -186,20 +187,13 @@ OPTIONS:
       logger.level = Yell::Level.new @options.loglevel.to_sym
     end
 
-    # def run
-    #   @options.output = File.expand_path @options.output
-    #   FileUtils.mkdir_p @options.output
-    #   Dir.chdir @options.output
-    #   analyse_bulks
-    # end
-    #
-    # def analyse_bulks
-    #   assembly = @options.assembly
-    #   logger.info "Loading assembly: #{assembly}"
-    #   # a = Assembly.new assembly
-    #   logger.info "Analysing assembly: #{assembly}"
-    #
-    # end
+    def run
+      @options.output = File.expand_path @options.output
+      FileUtils.mkdir_p @options.output
+      Dir.chdir @options.output
+      analysis = Cheripic::Implementer.new(@options)
+      analysis.run
+    end
 
   end # Cmd
 
