@@ -1,5 +1,3 @@
-require 'cheripic/cmd'
-require 'cheripic/version'
 
 # set up a golbal logger object to access across module
 require 'yell'
@@ -23,3 +21,7 @@ module Cheripic
   Object.send :include, Yell::Loggable
 
 end # Cheripic
+
+require 'cheripic/cmd'
+require 'cheripic/version'
+require 'cheripic/implementer'

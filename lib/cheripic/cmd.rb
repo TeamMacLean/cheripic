@@ -189,9 +189,7 @@ OPTIONS:
 
     def run
       @options.output = File.expand_path @options.output
-      FileUtils.mkdir_p @options.output
-      Dir.chdir @options.output
-      analysis = Cheripic::Implementer.new(@options)
+      analysis = Implementer.new(@options)
       analysis.run
     end
 
