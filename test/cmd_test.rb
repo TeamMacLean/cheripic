@@ -36,6 +36,37 @@ class CmdTest < Minitest::Test
       end
     end
 
+    should 'fail if polyploid parent files are missing' do
+      assert_raises Cheripic::CheripicIOError do
+        Cheripic::Cmd.new('--assembly test/data/input.fasta --polyploidy true  --mut-bulk foo.pileup'.split)
+      end
+    end
+
+    should 'print help message' do
+      begin
+        puts 'printing help message'
+        Cheripic::Cmd.new('-h'.split)
+      rescue SystemExit
+        puts 'rescued a system exit from help printing'
+      end
+    end
+
+    should 'print help examples' do
+      begin
+        puts 'printing examples'
+        Cheripic::Cmd.new('--examples'.split)
+      rescue SystemExit
+        puts 'rescued a system exit from example printing'
+      end
+    end
+
+    should 'get some value from analysis run' do
+      testcmd = Cheripic::Cmd.new('--assembly test/data/input.fasta --mut-bulk test/data/file1.pileup --bg-bulk test/data/file1.pileup'.split)
+      assert_equal(1, testcmd.run)
+      puts "#{Dir.pwd}"
+      Dir.rmdir('cheripic_results')
+    end
+
   end
 
 end
