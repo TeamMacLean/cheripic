@@ -6,16 +6,17 @@ module Cheripic
 
   class Implementer
 
-    attr_accessor :inputs
+    attr_accessor :options
 
     def initialize(inputs)
-      @inputs = inputs
-      FileUtils.mkdir_p @inputs.output
-      Dir.chdir @inputs.output
+      @options = inputs
+      FileUtils.mkdir_p @options.output
+      Dir.chdir @options.output
     end
 
     def extract_vars
-
+      variants = Variants.new(@options)
+      variants.analyse
     end
 
     def run

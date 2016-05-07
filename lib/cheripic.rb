@@ -25,3 +25,4 @@ end # Cheripic
 require 'cheripic/cmd'
 require 'cheripic/version'
 require 'cheripic/implementer'
+require 'cheripic/variants'
