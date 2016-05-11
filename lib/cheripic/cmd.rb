@@ -8,9 +8,10 @@ module Cheripic
     require 'pathname'
     require 'ostruct'
 
+    attr_accessor :options
+
     def initialize(args)
-      @options = OpenStruct.new
-      @options = parse_arguments(args)
+      @options = OpenStruct.new(parse_arguments(args))
       check_arguments
     end
 

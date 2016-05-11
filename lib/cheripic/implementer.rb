@@ -11,7 +11,6 @@ module Cheripic
     def initialize(inputs)
       @options = inputs
       FileUtils.mkdir_p @options.output
-      Dir.chdir @options.output
     end
 
     def extract_vars
@@ -21,9 +20,7 @@ module Cheripic
 
     def run
       # return some value for now
-      value = 1
-      Dir.chdir('../')
-      value
+      1
     end
 
   end
