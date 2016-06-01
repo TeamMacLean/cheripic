@@ -63,7 +63,7 @@ module Cheripic
       # read mpileup file and process each variant
       File.foreach(pileupfile) do |line|
         pileup = Pileup.new(line)
-        if pileup.is_var?
+        if pileup.is_var
           contig_obj = @assembly[pileup.ref_name]
           contig_obj.send(sym).store(pileup.pos, pileup)
         end

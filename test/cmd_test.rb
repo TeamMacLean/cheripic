@@ -66,7 +66,7 @@ class CmdTest < Minitest::Test
     end
 
     should 'get some value from analysis run' do
-      testcmd = Cheripic::Cmd.new("--assembly test/data/input.fasta --mut-bulk #{@file1} --bg-bulk #{@file2} --output test/cheripic_results".split)
+      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file2} --output test/cheripic_results".split)
       assert_equal(1, testcmd.run)
       Dir.rmdir('test/cheripic_results')
     end
