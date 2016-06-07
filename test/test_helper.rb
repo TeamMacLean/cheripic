@@ -16,3 +16,9 @@ require 'minitest/reporters'
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 require 'shoulda/context'
+
+def delete_outdir
+  if Dir.exist?('test/cheripic_results')
+    Dir.rmdir('test/cheripic_results')
+  end
+end
