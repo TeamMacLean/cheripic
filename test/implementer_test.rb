@@ -10,19 +10,18 @@ class ImplementerTest < Minitest::Test
       testcmd = Cheripic::Cmd.new("--assembly #{a} --mut-bulk  #{b} --bg-bulk  #{b} --output test/cheripic_results".split)
       @options = testcmd.options
       @implementing = Cheripic::Implementer.new(@options)
+      delete_outdir
+    end
+
+    teardown do
+      delete_outdir
     end
 
     should 'when run gives result of 1' do
       assert_equal(1, @implementing.run)
-      if Dir.exist?('test/cheripic_results')
-        Dir.rmdir('test/cheripic_results')
-      end
     end
 
     should 'do some analysis if inputs are provide' do
-      if Dir.exist?('test/cheripic_results')
-        Dir.rmdir('test/cheripic_results')
-      end
       skip('skipping analysis for the moment, until dependencies are fixed')
     end
 

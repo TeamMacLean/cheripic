@@ -12,8 +12,13 @@ class VariantsTest < Minitest::Test
       @file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
 
       @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --output test/cheripic_results".split)
-      FileUtils.mkdir_p @testcmd.output
-      @variants = Cheripic::Variants.new(@testcmd)
+      @options = @testcmd.options
+      FileUtils.mkdir_p @options.output
+      @variants = Cheripic::Variants.new(@options)
+    end
+
+    teardown do
+      delete_outdir
     end
 
     should 'run' do
@@ -22,7 +27,6 @@ class VariantsTest < Minitest::Test
       assert_equal true, @variants.has_run
     end
 
-    Dir.rmdir('test/cheripic_results')
 
   end
 
