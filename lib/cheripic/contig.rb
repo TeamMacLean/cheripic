@@ -12,29 +12,42 @@ module Cheripic
     extend Forwardable
     delegate [:size, :length] => :@contig
     def_delegator :@contig, :entry_id, :id
-    attr_accessor :contig
-    attr_accessor :mut_hm, :bg_hm, :mut_ht, :bg_ht
+#    attr_accessor :contig
+    attr_accessor :mut_bulk, :bg_bulk, :mut_parent, :bg_parent
     attr_accessor :mut_hemi, :bg_hemi, :polyploidy
 
     def initialize (fasta, polyploidy=false)
       @contig = fasta
       @contig.data = nil
-      @mut_hm = []
-      @bg_hm = []
-      @mut_ht =[]
-      @bg_ht = []
+      @mut_bulk = {}
+      @bg_bulk = {}
+      @mut_parent = {}
+      @bg_parent = {}
       @mut_hemi = {}
       @bg_hemi = {}
       @polyploidy=polyploidy
     end
 
+    # TODO: write methods to calculate mut_hm, bg_hm, mut_ht and bg_ht
+    def mut_hm
+    end
+
+    def bg_hm
+    end
+
+    def mut_ht
+    end
+
+    def bg_ht
+    end
+
     def hm_pos
-      if @bg_hm.empty?
-        @mut_hm
+      if self.bg_hm.empty?
+        self.mut_hm
       else
-        return [] if @mut_hm.empty?
-        @mut_hm.delete_if do | pos |
-          pos.include?(@bg_hm)
+        return [] if self.mut_hm.empty?
+        self.mut_hm.delete_if do | pos |
+          pos.include?(self.bg_hm)
         end
       end
     end
@@ -44,12 +57,12 @@ module Cheripic
     end
 
     def ht_pos
-      if @bg_hm.empty?
-        @mut_hm
+      if self.bg_ht.empty?
+        self.mut_ht
       else
-        return [] if @mut_hm.empty?
-        @mut_hm.delete_if do | pos |
-          pos.include?(@bg_hm)
+        return [] if self.mut_ht.empty?
+        self.mut_hm.delete_if do | pos |
+          pos.include?(self.bg_ht)
         end
       end
     end
