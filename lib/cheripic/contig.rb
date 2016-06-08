@@ -28,14 +28,14 @@ module Cheripic
     end
 
     def hm_pos
-      if @bg_hm.empty?
-        @mut_hm
-      else
-        return [] if @mut_hm.empty?
-        @mut_hm.delete_if do | pos |
-          pos.include?(@bg_hm)
-        end
+      return @mut_hm if @bg_hm.empty?
+      return [] if @mut_hm.empty?
+      hm_pos = []
+      @mut_hm.each do | pos |
+        next if pos.include?(@bg_hm)
+        hm_pos << pos
       end
+      hm_pos
     end
 
     def hm_num
@@ -43,14 +43,8 @@ module Cheripic
     end
 
     def ht_pos
-      if @bg_ht.empty?
-        @mut_ht
-      else
-        return [] if @mut_ht.empty?
-        @mut_ht.delete_if do | pos |
-          pos.include?(@bg_ht)
-        end
-      end
+      return [] if @mut_ht.empty?
+      @mut_ht
     end
 
     def ht_num

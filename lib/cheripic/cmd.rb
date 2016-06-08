@@ -148,7 +148,7 @@ OPTIONS:
 
     # TODO: check bulk input types and process associated files
     # def check_input_types
-    #   if @options[:]input_format] == 'vcf'
+    #   if @options[:input_format] == 'vcf'
     #
     #   end
     # end
