@@ -19,7 +19,6 @@ module Cheripic
 
     def initialize (fasta)
       @contig = fasta
-      @contig.data = nil
       @pos = {}
       @mut_bulk = {}
       @bg_bulk = {}
