@@ -13,11 +13,12 @@ module Cheripic
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
 
     attr_accessor :params, :assembly, :mut_bulk, :bg_bulk, :mut_parent, :bg_parent, :polyploidy
-    attr_reader :has_run
+    attr_reader :has_run, :pileups
 
     def initialize(options)
       @params = options
       @assembly = {}
+      @pileups = {}
       Bio::FastaFormat.open(@params.assembly).each do |entry|
         if entry.seq.length == 0
           logger.error "No sequence found for entry #{entry.entry_id}"
@@ -30,6 +31,7 @@ module Cheripic
           raise VariantsError
         end
         @assembly[contig.id] = contig
+        @pileups[contig.id] = ContigPileups.new(contig.id)
       end
     end
 
@@ -64,7 +66,7 @@ module Cheripic
       File.foreach(pileupfile) do |line|
         pileup = Pileup.new(line)
         if pileup.is_var
-          contig_obj = @assembly[pileup.ref_name]
+          contig_obj = @pileups[pileup.ref_name]
           contig_obj.send(sym).store(pileup.pos, pileup)
         end
       end
