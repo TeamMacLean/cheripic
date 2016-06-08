@@ -11,7 +11,7 @@ module Cheripic
     attr_accessor :options
 
     def initialize(args)
-      @options = OpenStruct.new(parse_arguments(args))
+      @options = parse_arguments(args)
       check_arguments
     end
 
@@ -148,13 +148,13 @@ OPTIONS:
 
     # TODO: check bulk input types and process associated files
     # def check_input_types
-    #   if @options.input_format == 'vcf'
+    #   if @options[:]input_format] == 'vcf'
     #
     #   end
     # end
 
     def check_input_files
-      if @options.polyploidy
+      if @options[:polyploidy]
         inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
       else
         inputfiles = %i{assembly mut_bulk bg_bulk}
@@ -174,22 +174,22 @@ OPTIONS:
     end
 
     def check_output_dir
-      if Dir.exist?(@options.output)
-        raise CheripicArgError.new "#{@options.output} directory exists" +
+      if Dir.exist?(@options[:output])
+        raise CheripicArgError.new "#{@options[:output]} directory exists" +
                                        'please choose a different output directory name'
       end
     end
 
     def check_log_level
-      unless %w(error info warn debug).include?(@options.loglevel)
-        raise CheripicArgError.new "Loglevel #{@options.loglevel} is not valid. " +
+      unless %w(error info warn debug).include?(@options[:loglevel])
+        raise CheripicArgError.new "Loglevel #{@options[:loglevel]} is not valid. " +
                                        'It must be one of: error, info, warn, debug.'
       end
-      logger.level = Yell::Level.new @options.loglevel.to_sym
+      logger.level = Yell::Level.new @options[:loglevel].to_sym
     end
 
     def run
-      @options.output = File.expand_path @options.output
+      @options[:output] = File.expand_path @options[:output]
       analysis = Implementer.new(@options)
       analysis.run
     end
