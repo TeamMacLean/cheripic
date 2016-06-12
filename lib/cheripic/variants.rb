@@ -12,7 +12,7 @@ module Cheripic
     extend Forwardable
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
 
-    attr_accessor :params, :assembly, :mut_bulk, :bg_bulk, :mut_parent, :bg_parent, :polyploidy
+    attr_accessor :assembly, :mut_bulk, :bg_bulk, :mut_parent, :bg_parent
     attr_reader :has_run, :pileups
 
     def initialize(options)
@@ -42,7 +42,6 @@ module Cheripic
       @bg_bulk ||= @params.bg_bulk
       @mut_parent ||= @params.mut_parent
       @bg_parent ||= @params.bg_parent
-      @polyploidy ||= @params.polyploidy
 
       %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
         infile = @params[input]
@@ -58,7 +57,6 @@ module Cheripic
       @bg_bulk = ''
       @mut_parent = ''
       @bg_parent = ''
-      @polyploidy = false
     end
 
     def extract_pileup(pileupfile, sym)
@@ -69,6 +67,15 @@ module Cheripic
           contig_obj = @pileups[pileup.ref_name]
           contig_obj.send(sym).store(pileup.pos, pileup)
         end
+      end
+    end
+
+    def compare_pileups
+      unless defined?(@has_run)
+        self.analyse
+      end
+      @assembly.each_key do | id |
+        @pileups[id].bulks_compared
       end
     end
 

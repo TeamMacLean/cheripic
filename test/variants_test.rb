@@ -21,12 +21,17 @@ class VariantsTest < Minitest::Test
       delete_outdir
     end
 
-    should 'run' do
+    should 'extract pileups' do
       #skip('skip for the moment')
       @variants.analyse
       assert_equal true, @variants.has_run
     end
 
+    should 'compare pileups' do
+      #skip('skip for the moment')
+      @variants.compare_pileups
+      assert_equal true, @variants.has_run
+    end
 
   end
 
