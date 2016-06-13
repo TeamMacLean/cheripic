@@ -14,9 +14,8 @@ module Cheripic
     def_delegators :@bg_bulk, :each, :each_key, :each_value, :length, :[], :store
     def_delegators :@mut_parent, :each, :each_key, :each_value, :length, :[], :store
     def_delegators :@bg_parent, :each, :each_key, :each_value, :length, :[], :store
-    attr_accessor :id
+    attr_accessor :id, :parent_hemi
     attr_accessor :mut_bulk, :bg_bulk, :mut_parent, :bg_parent
-    attr_accessor :hm_pos, :ht_pos, :hemi_pos, :parent_hemi
 
     def initialize (fasta)
       @id = fasta
@@ -25,12 +24,12 @@ module Cheripic
       @mut_parent = {}
       @bg_parent = {}
       @parent_hemi = {}
-      @hm_pos = []
-      @ht_pos = []
-      @hemi_pos = {}
     end
 
     def bulks_compared
+      @hm_pos = []
+      @ht_pos = []
+      @hemi_pos = {}
       @mut_bulk.each_key do | pos |
         if Options.params.polyploidy
           if @parent_hemi.key?(pos)
@@ -48,6 +47,7 @@ module Cheripic
           self.compare_pileup(pos)
         end
       end
+      [@hm_pos, @ht_pos, @hemi_pos]
     end
 
     # we are only dealing with single element hashes

@@ -75,7 +75,8 @@ module Cheripic
         self.analyse
       end
       @assembly.each_key do | id |
-        @pileups[id].bulks_compared
+        contig = @assembly[id]
+        contig.hm_pos, contig.ht_pos, contig.hemi_pos = @pileups[id].bulks_compared
       end
     end
 
