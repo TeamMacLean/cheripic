@@ -20,7 +20,7 @@ class OptionsTest < Minitest::Test
           :only_frag_with_vars => true,
           :filter_out_low_hmes => true,
           :polyploidy => false,
-          :br_adjust => 0.05
+          :bfr_adjust => 0.05
       }
       assert_equal(OpenStruct.new(defaults), Cheripic::Options::params)
     end
@@ -41,7 +41,7 @@ class OptionsTest < Minitest::Test
           :only_frag_with_vars => true,
           :filter_out_low_hmes => true,
           :polyploidy => false,
-          :br_adjust => 0.05
+          :bfr_adjust => 0.05
       }
       Cheripic::Options::update(newset)
       assert_equal(OpenStruct.new(newset), Cheripic::Options::params)

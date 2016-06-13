@@ -15,7 +15,7 @@ module Cheripic
 
       set2 = %i{hmes_adjust htlow hthigh mindepth min_non_ref_count min_indel_count_support
                 ignore_reference_n mapping_quality base_quality noise cross_type only_frag_with_vars
-                filter_out_low_hmes polyploidy br_adjust}
+                filter_out_low_hmes polyploidy bfr_adjust}
       settings = inputs.select { |k| set2.include?(k) }
       Options.update(settings)
       FileUtils.mkdir_p @options.output

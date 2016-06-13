@@ -99,7 +99,7 @@ module Cheripic
             :short => '-r',
             :type => String,
             :default => ''
-        opt :br_adjust, 'factor added to hemi snp frequency of each parent to adjust for bfr calculations',
+        opt :bfr_adjust, 'factor added to hemi snp frequency of each parent to adjust for bfr calculations',
             :type => Float,
             :default => 0.05
         opt :examples, 'shows some example commands with explanation'
