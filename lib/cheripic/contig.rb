@@ -10,13 +10,13 @@ module Cheripic
 
     include Enumerable
     extend Forwardable
-    delegate [:size, :length] => :@contig
-    def_delegator :@contig, :entry_id, :id
-    attr_accessor :hm_pos, :ht_pos, :hemi_pos
+    # delegate [:size, :length] => :@contig
+    # def_delegator :@contig, :entry_id, :id
+    attr_accessor :hm_pos, :ht_pos, :hemi_pos, :id, :length
 
     def initialize (fasta)
-      @contig = fasta
-      @contig.data = nil
+      @id = fasta.entry_id
+      @length = fasta.length
       @hm_pos = []
       @ht_pos = []
       @hemi_pos = {}
@@ -39,10 +39,13 @@ module Cheripic
       end
     end
 
+    def hemi_num
+      self.hemi_pos.length
+    end
+
     def bfr_score
-      bfr_adjust = Options.params.bfr_adjust
       if self.hemi_pos.values.empty?
-        bfr_adjust
+        0.0
       else
         geom_mean(self.hemi_pos.values)
       end
