@@ -22,15 +22,14 @@ class VariantsTest < Minitest::Test
     end
 
     should 'extract pileups' do
-      #skip('skip for the moment')
       @variants.analyse
       assert_equal true, @variants.has_run
     end
 
-    should 'compare pileups' do
-      #skip('skip for the moment')
+    should 'select hmes contigs' do
       @variants.compare_pileups
-      assert_equal true, @variants.has_run
+      hash = @variants.hmes_frags
+      assert_equal ["CL22874Contig1", "scaffold6147"], hash.keys
     end
 
   end
