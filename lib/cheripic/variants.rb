@@ -11,9 +11,7 @@ module Cheripic
     include Enumerable
     extend Forwardable
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
-
-    attr_accessor :assembly, :mut_bulk, :bg_bulk, :mut_parent, :bg_parent
-    attr_reader :has_run, :pileups
+    attr_accessor :assembly, :has_run, :pileups
 
     def initialize(options)
       @params = options
@@ -78,6 +76,86 @@ module Cheripic
         contig = @assembly[id]
         contig.hm_pos, contig.ht_pos, contig.hemi_pos = @pileups[id].bulks_compared
       end
+    end
+
+    def hmes_frags
+      select_contigs(:hmes)
+    end
+
+    def bfr_frags
+      select_contigs(:bfr)
+    end
+
+    def select_contigs(ratio_type)
+      selected_contigs ={}
+      only_frag_with_vars = Options.params.only_frag_with_vars
+      @assembly.each_key do | frag |
+        if only_frag_with_vars and ratio_type == :hmes
+          # selecting fragments which have a variant
+          numhm = @assembly[frag].hm_num
+          numht = @assembly[frag].ht_num
+          if numht + numhm > 2 * Options.params.hmes_adjust
+            selected_contigs[frag] = @assembly[frag]
+          end
+        elsif only_frag_with_vars and ratio_type == :bfr
+          # in polyploidy scenario selecting fragments with at least one bfr position
+          numbfr = @assembly[frag].hemi_num
+          if numbfr > 0
+            selected_contigs[frag] = @assembly[frag]
+          end
+        else
+          selected_contigs[frag] = @assembly[frag]
+        end
+      end
+      selected_contigs = filter_contigs(selected_contigs, ratio_type)
+      if only_frag_with_vars
+        logger.info "Selected #{selected_contigs.length} out of #{@assembly.length} fragments with #{ratio_type.to_s} score\n"
+      else
+        logger.info "No filtering was applied to fragments\n"
+      end
+      selected_contigs
+    end
+
+    def filter_contigs(selected_contigs, ratio_type)
+      filter_out_low_hmes = Options.params.filter_out_low_hmes
+      # set minimum cut off hme_score or bfr_score to pick fragments with variants
+      # calculate min hme score for back or out crossed data or bfr_score for polypoidy data
+      # if no filtering applied set cutoff to 1.1
+      if filter_out_low_hmes and ratio_type == :hmes
+        adjust = Options.params.hmes_adjust
+        if Options.params.cross == 'back'
+          cutoff = (1.0/adjust) + 1.0
+        else # outcross
+          cutoff = (2.0/adjust) + 1.0
+        end
+      elsif filter_out_low_hmes and ratio_type == :bfr
+        cutoff = bfr_cutoff(selected_contigs)
+      else
+        cutoff = 1.1
+      end
+
+      selected_contigs.each_key do | frag |
+        if ratio_type == :hmes and selected_contigs[frag].hme_score < cutoff
+          selected_contigs[frag].delete
+        elsif ratio_type == :bfr and selected_contigs[frag].bfr_score < cutoff
+          selected_contigs[frag].delete
+        end
+      end
+      selected_contigs
+    end
+
+    def bfr_cutoff(selected_contigs, prop=0.1)
+      ratios = []
+      selected_contigs.each_key do | frag |
+        ratios << selected_contigs[frag].bfr_score
+      end
+      ratios.sort!.reverse!
+      index = (ratios.length * prop)/100
+      # set a minmum index to get at least one contig
+      if index < 1
+        index = 1
+      end
+      ratios[index - 1]
     end
 
   end # Variants
