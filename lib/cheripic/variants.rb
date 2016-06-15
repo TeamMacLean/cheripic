@@ -164,6 +164,35 @@ module Cheripic
       ratios[index - 1]
     end
 
+    # method is to discard homozygous variant positions for which background bulk
+    # pileup shows proportion higher than 0.35 for variant allele/non-reference allele
+    # a recessive variant is expected to have 1/3rd frequency in background bulk
+    def verify_bg_bulk_pileup
+      self.hmes_frags.each_key do | frag |
+        positions = @assembly[frag].hm_pos
+        contig_pileup_obj = @pileups[frag]
+        positions.each do | pos |
+          if contig_pileup_obj.mut_bulk.key?(pos)
+            mut_pileup = contig_pileup_obj.mut_bulk[pos]
+            if mut_pileup.is_var
+              if contig_pileup_obj.bg_bulk.key?(pos)
+                bg_pileup = contig_pileup_obj.bg_bulk[pos]
+                if bg_pileup.non_ref_ratio > 0.35
+                  @assembly[frag].hm_pos.delete(pos)
+                end
+              end
+            else
+              # this should not happen, may be catch as as an error
+              @assembly[frag].hm_pos.delete(pos)
+            end
+          else
+            # this should not happen, may be catch as as an error
+            @assembly[frag].hm_pos.delete(pos)
+          end
+        end
+      end
+    end
+
   end # Variants
 
 end # Cheripic
