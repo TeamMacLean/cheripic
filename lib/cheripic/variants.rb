@@ -11,7 +11,7 @@ module Cheripic
     include Enumerable
     extend Forwardable
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
-    attr_accessor :assembly, :has_run, :pileups
+    attr_accessor :assembly, :has_run, :pileups, :hmes_frags, :bfr_frags
 
     def initialize(options)
       @params = options
@@ -35,7 +35,7 @@ module Cheripic
 
     # Read and store pileup data for each bulk and parents
     #
-    def analyse
+    def analyse_pileups
       set_defaults
       @bg_bulk ||= @params.bg_bulk
       @mut_parent ||= @params.mut_parent
@@ -70,7 +70,7 @@ module Cheripic
 
     def compare_pileups
       unless defined?(@has_run)
-        self.analyse
+        self.analyse_pileups
       end
       @assembly.each_key do | id |
         contig = @assembly[id]
@@ -79,11 +79,17 @@ module Cheripic
     end
 
     def hmes_frags
-      select_contigs(:hmes)
+      unless defined?(@hmes_frags)
+        @hmes_frags = select_contigs(:hmes)
+      end
+      @hmes_frags
     end
 
     def bfr_frags
-      select_contigs(:bfr)
+      unless defined?(@bfr_frags)
+        @bfr_frags = select_contigs(:bfr)
+      end
+      @bfr_frags
     end
 
     def select_contigs(ratio_type)

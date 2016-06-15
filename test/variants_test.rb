@@ -22,7 +22,7 @@ class VariantsTest < Minitest::Test
     end
 
     should 'extract pileups' do
-      @variants.analyse
+      @variants.analyse_pileups
       assert_equal true, @variants.has_run
     end
 

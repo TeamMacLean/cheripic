@@ -23,7 +23,7 @@ module Cheripic
 
     def extract_vars
       variants = Variants.new(@options)
-      variants.analyse
+      variants.analyse_pileups
     end
 
     def run
