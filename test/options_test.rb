@@ -4,8 +4,8 @@ class OptionsTest < Minitest::Test
 
   context 'options_test' do
 
-    should 'get default params' do
-      defaults = {
+    setup do
+      @defaults = {
           :hmes_adjust => 0.5,
           :htlow => 0.2,
           :hthigh => 0.9,
@@ -22,7 +22,11 @@ class OptionsTest < Minitest::Test
           :polyploidy => false,
           :bfr_adjust => 0.05
       }
-      assert_equal(OpenStruct.new(defaults), Cheripic::Options::params)
+      Cheripic::Options::update(@defaults)
+    end
+
+    should 'get default params' do
+      assert_equal(OpenStruct.new(@defaults), Cheripic::Options::params)
     end
 
     should 'get updated params' do
