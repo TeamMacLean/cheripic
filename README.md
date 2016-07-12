@@ -6,10 +6,13 @@
 [![Code Climate](https://codeclimate.com/github/shyamrallapalli/cheripic/badges/gpa.svg)](https://codeclimate.com/github/shyamrallapalli/cheripic)
 
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/cheripic`. To experiment with that code, run `bin/console` for an interactive prompt.
 
-TODO: Delete this and the text above, and describe your gem
-
+Computing Homozygosity Enriched Regions In genomes to Prioritize Identification of Candidate variants (CHERIPIC), 
+is a ruby tools to pick causative mutation from bulks segregant sequencing.     
+        
+Currently this gem is still in development and nearing complete working package.
+        
+        
 ## Installation
 
 Add this line to your application's Gemfile:
