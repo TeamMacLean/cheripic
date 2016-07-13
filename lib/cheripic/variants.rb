@@ -74,6 +74,10 @@ module Cheripic
       end
       @assembly.each_key do | id |
         contig = @assembly[id]
+        # extract parental hemi snps for polyploids before bulks are compared
+        if @mut_parent != '' or @bg_parent != ''
+          @pileups[id].hemisnps_in_parent
+        end
         contig.hm_pos, contig.ht_pos, contig.hemi_pos = @pileups[id].bulks_compared
       end
     end
