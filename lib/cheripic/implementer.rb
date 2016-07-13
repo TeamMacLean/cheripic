@@ -46,6 +46,8 @@ module Cheripic
     end
 
     def process_variants
+      @variants.verify_bg_bulk_pileup
+      # print selected variants that could be potential markers or mutation
 
     end
 

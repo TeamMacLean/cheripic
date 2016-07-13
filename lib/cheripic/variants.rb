@@ -83,10 +83,8 @@ module Cheripic
     end
 
     def hmes_frags
-      unless defined?(@hmes_frags)
-        @hmes_frags = select_contigs(:hmes)
-      end
-      @hmes_frags
+      # calculate every time method gets called
+      @hmes_frags = select_contigs(:hmes)
     end
 
     def bfr_frags
@@ -172,7 +170,10 @@ module Cheripic
     # pileup shows proportion higher than 0.35 for variant allele/non-reference allele
     # a recessive variant is expected to have 1/3rd frequency in background bulk
     def verify_bg_bulk_pileup
-      self.hmes_frags.each_key do | frag |
+      unless defined?(@hmes_frags)
+        self.hmes_frags
+      end
+      @hmes_frags.each_key do | frag |
         positions = @assembly[frag].hm_pos
         contig_pileup_obj = @pileups[frag]
         positions.each do | pos |
@@ -195,6 +196,8 @@ module Cheripic
           end
         end
       end
+      # recalculate hmes_frags once pileups are verified
+      self.hmes_frags
     end
 
   end # Variants
