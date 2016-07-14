@@ -22,7 +22,8 @@ module Cheripic
         :only_frag_with_vars => true,
         :filter_out_low_hmes => true,
         :polyploidy => false,
-        :bfr_adjust => 0.05
+        :bfr_adjust => 0.05,
+        :sel_seq_len => 50
     }
     # @params = OpenStruct.new(@defaults)
 
