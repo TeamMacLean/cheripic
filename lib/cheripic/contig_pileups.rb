@@ -38,7 +38,7 @@ module Cheripic
               bg_bases = @bg_bulk[pos].var_base_frac
             end
             mut_bases = @mut_bulk[pos].var_base_frac
-            bfr = Bfr.get_bfr(mut_bases, :bg_hash => bg_bases)
+            bfr = Bfr.get_bfr(mut_bases, bg_bases)
             @hemi_pos[pos] = bfr
           else
             compare_pileup(pos)
@@ -117,10 +117,10 @@ module Cheripic
         if self.bg_parent.key?(pos)
           bg_parent_frac = @bg_parent[pos].var_base_frac
           if mut_parent_frac.length == 2 and mut_parent_frac.key?(:ref)
-            bfr = Bfr.get_bfr(mut_parent_frac, :bg_hash => bg_parent_frac)
+            bfr = Bfr.get_bfr(mut_parent_frac, bg_parent_frac)
             @parent_hemi[pos] = bfr
           elsif bg_parent_frac.length == 2 and bg_parent_frac.key?(:ref)
-            bfr = Bfr.get_bfr(mut_parent_frac, :bg_hash => bg_parent_frac)
+            bfr = Bfr.get_bfr(mut_parent_frac, bg_parent_frac)
             @parent_hemi[pos] = bfr
           end
           self.bg_parent.delete(pos)

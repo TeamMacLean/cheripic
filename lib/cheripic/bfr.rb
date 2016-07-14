@@ -8,17 +8,10 @@ module Cheripic
 
     attr_accessor :bfr_adj
 
-    DEFAULT = {
-        bfr_adj: 0.01,
-        bg_hash: '',
-    }
-
     # get bulk frequency ratio (bfr) for marked hemi snps only
     # ignore positions with complex variants
-    def self.get_bfr(mut_hash, opts = {})
-      opts = DEFAULT.merge(opts)
-      @bfr_adj = opts[:bfr_adj]
-      bg_hash = opts[:bg_hash]
+    def self.get_bfr(mut_hash, bg_hash='')
+      @bfr_adj = Options.params.bfr_adj
       if bg_hash != ''
         # checking if only two vars in base hash and that includes ref
         # checking if only one var in hemi snp
