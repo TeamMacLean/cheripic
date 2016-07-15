@@ -11,7 +11,7 @@ module Cheripic
     # get bulk frequency ratio (bfr) for marked hemi snps only
     # ignore positions with complex variants
     def self.get_bfr(mut_hash, bg_hash='')
-      @bfr_adj = Options.params.bfr_adj
+      @bfr_adj = Options.params.bfr_adjust
       if bg_hash != ''
         # checking if only two vars in base hash and that includes ref
         # checking if only one var in hemi snp

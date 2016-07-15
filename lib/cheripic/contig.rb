@@ -54,10 +54,11 @@ module Cheripic
     # geometric mean of an array of numbers
     def geom_mean(array)
       return array[0].to_f if array.length == 1
-      sum = 0.0
-      array.each{ |v| sum += Math.log(v.to_f) }
-      sum /= array.size
-      Math.exp sum
+      array.reduce(:+) / array.size.to_f
+      # sum = 0.0
+      # array.each{ |v| sum += Math.log(v.to_f) }
+      # sum /= array.size
+      # Math.exp sum
     end
 
   end # Contig
