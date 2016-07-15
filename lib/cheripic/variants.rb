@@ -36,10 +36,9 @@ module Cheripic
     # Read and store pileup data for each bulk and parents
     #
     def analyse_pileups
-      set_defaults
-      @bg_bulk ||= @params.bg_bulk
-      @mut_parent ||= @params.mut_parent
-      @bg_parent ||= @params.bg_parent
+      @bg_bulk = @params.bg_bulk
+      @mut_parent = @params.mut_parent
+      @bg_parent = @params.bg_parent
 
       %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
         infile = @params[input]
@@ -49,12 +48,6 @@ module Cheripic
       end
 
       @has_run = true
-    end
-
-    def set_defaults
-      @bg_bulk = ''
-      @mut_parent = ''
-      @bg_parent = ''
     end
 
     def extract_pileup(pileupfile, sym)
@@ -131,7 +124,7 @@ module Cheripic
       # if no filtering applied set cutoff to 1.1
       if filter_out_low_hmes and ratio_type == :hmes
         adjust = Options.params.hmes_adjust
-        if Options.params.cross == 'back'
+        if Options.params.cross_type == 'back'
           cutoff = (1.0/adjust) + 1.0
         else # outcross
           cutoff = (2.0/adjust) + 1.0
@@ -144,9 +137,9 @@ module Cheripic
 
       selected_contigs.each_key do | frag |
         if ratio_type == :hmes and selected_contigs[frag].hme_score < cutoff
-          selected_contigs[frag].delete
+          selected_contigs.delete(frag)
         elsif ratio_type == :bfr and selected_contigs[frag].bfr_score < cutoff
-          selected_contigs[frag].delete
+          selected_contigs.delete(frag)
         end
       end
       selected_contigs
