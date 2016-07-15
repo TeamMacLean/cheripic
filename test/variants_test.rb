@@ -11,9 +11,9 @@ class VariantsTest < Minitest::Test
       @file4 = File.join(File.dirname(__FILE__), 'data', 'mut_parent.pileup')
       @file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
 
-      @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --output test/cheripic_results".split)
+      @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --polyploidy true --output test/cheripic_results".split)
       @options = @testcmd.options
-      FileUtils.mkdir_p @options.output
+      @implementing = Cheripic::Implementer.new(@options)
       @variants = Cheripic::Variants.new(@options)
     end
 
@@ -29,7 +29,13 @@ class VariantsTest < Minitest::Test
     should 'select hmes contigs' do
       @variants.compare_pileups
       hash = @variants.hmes_frags
-      assert_equal ["CL22874Contig1", "scaffold6147"], hash.keys
+      assert_equal %w{CL22874Contig1 scaffold6147}, hash.keys
+    end
+
+    should 'select bfrcontigs' do
+      @variants.compare_pileups
+      hash = @variants.bfr_frags
+      assert_equal %w{scaffold6147 scaffold1920}, hash.keys
     end
 
   end
