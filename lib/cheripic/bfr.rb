@@ -54,10 +54,11 @@ module Cheripic
         sum = other_hash[:ref] + @bfr_adj
         frac_2 = @bfr_adj/sum
       end
+      # making sure ratio is always 1 or grater
       if frac_1 > frac_2
         bfr = frac_1/frac_2
       else
-        bfr = frac_1/frac_2
+        bfr = frac_2/frac_1
       end
       bfr
     end
