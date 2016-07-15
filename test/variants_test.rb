@@ -13,7 +13,7 @@ class VariantsTest < Minitest::Test
 
       @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --polyploidy true --output test/cheripic_results".split)
       @options = @testcmd.options
-      @implementing = Cheripic::Implementer.new(@options)
+      Cheripic::Implementer.new(@options)
       @variants = Cheripic::Variants.new(@options)
     end
 
@@ -36,6 +36,45 @@ class VariantsTest < Minitest::Test
       @variants.compare_pileups
       hash = @variants.bfr_frags
       assert_equal %w{scaffold6147 scaffold1920}, hash.keys
+    end
+
+  end
+
+  context 'input_seq_test' do
+
+    setup do
+      @file1 = File.join(File.dirname(__FILE__), 'data', 'picked_fasta.fa')
+      @file2 = File.join(File.dirname(__FILE__), 'data', 'mut_bulk.pileup')
+      @file3 = File.join(File.dirname(__FILE__), 'data', 'wt_bulk.pileup')
+    end
+
+    should 'fail on empty sequence' do
+      file1 = File.join(File.dirname(__FILE__), 'data', 'empty_seq.fa')
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --output test/cheripic_results".split)
+      options = testcmd.options
+      assert_raises Cheripic::VariantsError do
+        Cheripic::Variants.new(options)
+      end
+    end
+
+    should 'fail on duplicate fasta ids' do
+      file1 = File.join(File.dirname(__FILE__), 'data', 'dup_names.fa')
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --output test/cheripic_results".split)
+      options = testcmd.options
+      assert_raises Cheripic::VariantsError do
+        Cheripic::Variants.new(options)
+      end
+    end
+
+    should 'select all contigs' do
+      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --no-only-frag-with-vars false --output test/cheripic_results".split)
+      warn "#{testcmd.options}"
+      Cheripic::Implementer.new(testcmd.options)
+      variants = Cheripic::Variants.new(testcmd.options)
+      variants.compare_pileups
+      hash = variants.hmes_frags
+      assert_equal %w{CL22874Contig1 scaffold6147 scaffold1920}, hash.keys
+      delete_outdir
     end
 
   end
