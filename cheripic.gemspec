@@ -28,7 +28,7 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency 'bundler', '~> 1.10'
   spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'minitest', '~> 0'
+  spec.add_development_dependency 'minitest'
   spec.add_development_dependency 'minitest-reporters', '~> 1.0', '>= 1.0.17'
   spec.add_development_dependency 'simplecov', '~> 0.8', '>= 0.8.2'
   spec.add_development_dependency 'shoulda', '~> 3.5', '>= 3.5.0'
