@@ -27,8 +27,8 @@ module Cheripic
     end
 
     def bulks_compared
-      @hm_pos = []
-      @ht_pos = []
+      @hm_pos = {}
+      @ht_pos = {}
       @hemi_pos = {}
       @mut_bulk.each_key do | pos |
         if Options.params.polyploidy
@@ -60,21 +60,21 @@ module Cheripic
       # we could ignore complex loci or
       # take the variant type based on predominant base
       if base_hash.length > 1
-        mut_type = var_mode(base_hash.values.max)
+        mut_type, ratio = var_mode(base_hash.values.max)
         if @bg_bulk.key?(pos)
           bg_type = bg_bulk_var(pos)
           return nil if mut_type == :hom and bg_type == :hom
         end
-        categorise_pos(mut_type, pos)
+        categorise_pos(mut_type, pos, ratio)
       else
         base = base_hash.keys[0]
-        mut_type = var_mode(base_hash[base])
+        mut_type, ratio = var_mode(base_hash[base])
         if @bg_bulk.key?(pos)
           bg_type = bg_bulk_var(pos)
           return nil if mut_type == :hom and bg_type == :hom
-          categorise_pos(mut_type, pos)
+          categorise_pos(mut_type, pos, ratio)
         else
-          categorise_pos(mut_type, pos)
+          categorise_pos(mut_type, pos, ratio)
         end
       end
     end
@@ -82,17 +82,19 @@ module Cheripic
     def bg_bulk_var(pos)
       bg_base_hash = @bg_bulk[pos].var_base_frac
       if bg_base_hash.length > 1
-        var_mode(bg_base_hash.values.max)
+        # taking only var mode
+        var_mode(bg_base_hash.values.max)[0]
       else
-        var_mode(bg_base_hash[0])
+        # taking only var mode
+        var_mode(bg_base_hash[0])[0]
       end
     end
 
-    def categorise_pos(var_type, pos)
+    def categorise_pos(var_type, pos, ratio)
       if var_type == :hom
-        @hm_pos << pos
+        @hm_pos[pos] = ratio
       elsif var_type == :het
-        @ht_pos << pos
+        @ht_pos[pos] = ratio
       end
     end
 
@@ -107,7 +109,7 @@ module Cheripic
       elsif ratio > ht_high
         mode = :hom
       end
-      mode
+      [mode, ratio]
     end
 
     def hemisnps_in_parent

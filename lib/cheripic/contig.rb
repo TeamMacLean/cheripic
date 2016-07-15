@@ -17,8 +17,8 @@ module Cheripic
     def initialize (fasta)
       @id = fasta.entry_id
       @length = fasta.length
-      @hm_pos = []
-      @ht_pos = []
+      @hm_pos = {}
+      @ht_pos = {}
       @hemi_pos = {}
     end
 

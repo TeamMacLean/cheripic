@@ -167,7 +167,7 @@ module Cheripic
         self.hmes_frags
       end
       @hmes_frags.each_key do | frag |
-        positions = @assembly[frag].hm_pos
+        positions = @assembly[frag].hm_pos.keys
         contig_pileup_obj = @pileups[frag]
         positions.each do | pos |
           if contig_pileup_obj.mut_bulk.key?(pos)
