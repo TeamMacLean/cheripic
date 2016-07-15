@@ -17,13 +17,13 @@ class ImplementerTest < Minitest::Test
       delete_outdir
     end
 
-    should 'when run gives result of 1' do
-      assert_equal(1, @implementing.run)
-    end
-
-    should 'do some analysis if inputs are provide' do
-      skip('skipping analysis for the moment, until dependencies are fixed')
-    end
+    # should 'when run gives result of 1' do
+    #   assert_equal(1, @implementing.run)
+    # end
+    #
+    # should 'do some analysis if inputs are provide' do
+    #   skip('skipping analysis for the moment, until dependencies are fixed')
+    # end
 
   end
 

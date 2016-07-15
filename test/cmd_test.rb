@@ -72,11 +72,11 @@ class CmdTest < Minitest::Test
       end
     end
 
-    should 'get some value from analysis run' do
-      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file2} --output test/cheripic_results".split)
-      assert_equal(1, testcmd.run)
-      delete_outdir
-    end
+    # should 'get some value from analysis run' do
+    #   testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file2} --output test/cheripic_results".split)
+    #   assert_equal(1, testcmd.run)
+    #   delete_outdir
+    # end
 
   end
 
