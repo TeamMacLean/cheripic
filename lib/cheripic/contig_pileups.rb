@@ -31,18 +31,14 @@ module Cheripic
       @ht_pos = {}
       @hemi_pos = {}
       @mut_bulk.each_key do | pos |
-        if Options.params.polyploidy
-          if @parent_hemi.key?(pos)
-            bg_bases = ''
-            if @bg_bulk.key?(pos)
-              bg_bases = @bg_bulk[pos].var_base_frac
-            end
-            mut_bases = @mut_bulk[pos].var_base_frac
-            bfr = Bfr.get_bfr(mut_bases, bg_bases)
-            @hemi_pos[pos] = bfr
-          else
-            compare_pileup(pos)
+        if Options.params.polyploidy and @parent_hemi.key?(pos)
+          bg_bases = ''
+          if @bg_bulk.key?(pos)
+            bg_bases = @bg_bulk[pos].var_base_frac
           end
+          mut_bases = @mut_bulk[pos].var_base_frac
+          bfr = Bfr.get_bfr(mut_bases, bg_bases)
+          @hemi_pos[pos] = bfr
         else
           self.compare_pileup(pos)
         end
@@ -61,21 +57,26 @@ module Cheripic
       # take the variant type based on predominant base
       if base_hash.length > 1
         mut_type, ratio = var_mode(base_hash.values.max)
-        if @bg_bulk.key?(pos)
-          bg_type = bg_bulk_var(pos)
-          return nil if mut_type == :hom and bg_type == :hom
-        end
-        categorise_pos(mut_type, pos, ratio)
       else
         base = base_hash.keys[0]
         mut_type, ratio = var_mode(base_hash[base])
-        if @bg_bulk.key?(pos)
-          bg_type = bg_bulk_var(pos)
-          return nil if mut_type == :hom and bg_type == :hom
-          categorise_pos(mut_type, pos, ratio)
-        else
-          categorise_pos(mut_type, pos, ratio)
-        end
+      end
+      if @bg_bulk.key?(pos)
+        bg_type = bg_bulk_var(pos)
+        mut_type = compare_var_type(mut_type, bg_type)
+      end
+      unless mut_type == nil
+        categorise_pos(mut_type, pos, ratio)
+      end
+    end
+
+    # if both bulks have homozygous var at this position
+    # then ignore the position
+    def compare_var_type(muttype, bgtype)
+      if muttype == :hom and bgtype == :hom
+        nil
+      else
+        muttype
       end
     end
 
