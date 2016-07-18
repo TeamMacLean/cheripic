@@ -68,7 +68,6 @@ class VariantsTest < Minitest::Test
 
     should 'select all contigs' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --no-only-frag-with-vars false --output test/cheripic_results".split)
-      warn "#{testcmd.options}"
       Cheripic::Implementer.new(testcmd.options)
       variants = Cheripic::Variants.new(testcmd.options)
       variants.compare_pileups

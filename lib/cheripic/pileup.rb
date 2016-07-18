@@ -11,6 +11,7 @@ class Pileup < Bio::DB::Pileup
     super(string)
     set_defaults(opts)
     adj_read_bases
+    @indelbases = 'acgtryswkmbdhvnACGTRYSWKMBDHVN'
   end
 
   def set_defaults(opts)
@@ -33,8 +34,8 @@ class Pileup < Bio::DB::Pileup
     # read ends marking by '$' symbol is substituted
     # insertion and deletion marking by '*' symbol is substituted
     self.read_bases.gsub!(/\^./, '')
-    self.read_bases.gsub!(/\$/, '')
-    self.read_bases.gsub!(/\*/, '')
+    self.read_bases.delete! '$'
+    self.read_bases.delete! '*'
     # warn about reads with ambiguous codes
     # if self.read_bases.match(/[^atgcATGC,\.\+\-0-9]/)
     #   warn "Ambiguous nucleotide\t#{self.read_bases}"
@@ -69,7 +70,7 @@ class Pileup < Bio::DB::Pileup
     array.shift
     array.each do |element|
       # deletions in reference could contain ambiguous codes,
-      number += /^(\d+)[acgtryswkmbdhvnACGTRYSWKMBDHVN]/.match(element)[1].to_i
+      number += /^(\d+)[#{@indelbases}]/.match(element)[1].to_i
     end
     number
   end
@@ -145,13 +146,12 @@ class Pileup < Bio::DB::Pileup
   # count number of indels and number non-indel base
   # and return a hash with bases and indel counts
   def indels_to_hash(delimiter)
-    indel_bases = 'acgtryswkmbdhvnACGTRYSWKMBDHVN'
     non_indel_bases = String.new
     array = self.read_bases.split(delimiter)
     non_indel_bases << array.shift
     array.each do |element|
       # get number of nucleotides inserted or deleted
-      number = /^(\d+)[#{indel_bases}]/.match(element)[1].to_i
+      number = /^(\d+)[#{@indelbases}]/.match(element)[1].to_i
       # capture remaining nucleotides
       non_indel_bases << element.gsub(/^#{number}\w{#{number}}/, '')
     end
@@ -177,7 +177,7 @@ class Pileup < Bio::DB::Pileup
 
   def indel_non_ref_count(delimitter)
     read_bases = self.read_bases
-    non_ref_count = read_bases.count('acgtryswkmbdhvnACGTRYSWKMBDHVN')
+    non_ref_count = read_bases.count(@indelbases)
     indelcounts = read_bases.count(delimitter)
     indel_bases = count_indel_bases(delimitter)
     non_ref_count + indelcounts - indel_bases
