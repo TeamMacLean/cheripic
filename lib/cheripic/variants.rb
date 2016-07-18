@@ -77,12 +77,12 @@ module Cheripic
 
     def hmes_frags
       # calculate every time method gets called
-      @hmes_frags = select_contigs(:hmes)
+      @hmes_frags = select_contigs(:hme_score)
     end
 
     def bfr_frags
       unless defined?(@bfr_frags)
-        @bfr_frags = select_contigs(:bfr)
+        @bfr_frags = select_contigs(:bfr_score)
       end
       @bfr_frags
     end
@@ -91,14 +91,14 @@ module Cheripic
       selected_contigs ={}
       only_frag_with_vars = Options.params.only_frag_with_vars
       @assembly.each_key do | frag |
-        if only_frag_with_vars and ratio_type == :hmes
+        if only_frag_with_vars and ratio_type == :hme_score
           # selecting fragments which have a variant
           numhm = @assembly[frag].hm_num
           numht = @assembly[frag].ht_num
           if numht + numhm > 2 * Options.params.hmes_adjust
             selected_contigs[frag] = @assembly[frag]
           end
-        elsif only_frag_with_vars and ratio_type == :bfr
+        elsif only_frag_with_vars and ratio_type == :bfr_score
           # in polyploidy scenario selecting fragments with at least one bfr position
           numbfr = @assembly[frag].hemi_num
           if numbfr > 0
@@ -110,7 +110,7 @@ module Cheripic
       end
       selected_contigs = filter_contigs(selected_contigs, ratio_type)
       if only_frag_with_vars
-        logger.info "Selected #{selected_contigs.length} out of #{@assembly.length} fragments with #{ratio_type.to_s} score\n"
+        logger.info "Selected #{selected_contigs.length} out of #{@assembly.length} fragments with #{ratio_type} score\n"
       else
         logger.info "No filtering was applied to fragments\n"
       end
