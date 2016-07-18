@@ -118,31 +118,35 @@ module Cheripic
     end
 
     def filter_contigs(selected_contigs, ratio_type)
-      filter_out_low_hmes = Options.params.filter_out_low_hmes
-      # set minimum cut off hme_score or bfr_score to pick fragments with variants
-      # calculate min hme score for back or out crossed data or bfr_score for polypoidy data
-      # if no filtering applied set cutoff to 1.1
-      if filter_out_low_hmes and ratio_type == :hmes
-        adjust = Options.params.hmes_adjust
-        if Options.params.cross_type == 'back'
-          cutoff = (1.0/adjust) + 1.0
-        else # outcross
-          cutoff = (2.0/adjust) + 1.0
-        end
-      elsif filter_out_low_hmes and ratio_type == :bfr
-        cutoff = bfr_cutoff(selected_contigs)
-      else
-        cutoff = 1.1
-      end
-
+      cutoff = get_cutoff(selected_contigs, ratio_type)
       selected_contigs.each_key do | frag |
-        if ratio_type == :hmes and selected_contigs[frag].hme_score < cutoff
-          selected_contigs.delete(frag)
-        elsif ratio_type == :bfr and selected_contigs[frag].bfr_score < cutoff
+        if selected_contigs[frag].send(ratio_type) < cutoff
           selected_contigs.delete(frag)
         end
       end
       selected_contigs
+    end
+
+    def get_cutoff(selected_contigs, ratio_type)
+      filter_out_low_hmes = Options.params.filter_out_low_hmes
+      # set minimum cut off hme_score or bfr_score to pick fragments with variants
+      # calculate min hme score for back or out crossed data or bfr_score for polypoidy data
+      # if no filtering applied set cutoff to 1.1
+      if filter_out_low_hmes
+        if ratio_type == :hme_score
+          adjust = Options.params.hmes_adjust
+          if Options.params.cross_type == 'back'
+            cutoff = (1.0/adjust) + 1.0
+          else # outcross
+            cutoff = (2.0/adjust) + 1.0
+          end
+        else # ratio_type is bfr_score
+          cutoff = bfr_cutoff(selected_contigs)
+        end
+      else
+        cutoff = 0.0
+      end
+      cutoff
     end
 
     def bfr_cutoff(selected_contigs, prop=0.1)

@@ -46,6 +46,12 @@ class VariantsTest < Minitest::Test
       @file1 = File.join(File.dirname(__FILE__), 'data', 'picked_fasta.fa')
       @file2 = File.join(File.dirname(__FILE__), 'data', 'mut_bulk.pileup')
       @file3 = File.join(File.dirname(__FILE__), 'data', 'wt_bulk.pileup')
+      @file4 = File.join(File.dirname(__FILE__), 'data', 'mut_parent.pileup')
+      @file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
+    end
+
+    teardown do
+      delete_outdir
     end
 
     should 'fail on empty sequence' do
@@ -66,14 +72,24 @@ class VariantsTest < Minitest::Test
       end
     end
 
-    should 'select all contigs' do
-      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --no-only-frag-with-vars false --output test/cheripic_results".split)
+    should 'select all contigs with vars' do
+      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3}
+--no-only-frag-with-vars --output test/cheripic_results".split)
       Cheripic::Implementer.new(testcmd.options)
       variants = Cheripic::Variants.new(testcmd.options)
       variants.compare_pileups
       hash = variants.hmes_frags
       assert_equal %w{CL22874Contig1 scaffold6147 scaffold1920}, hash.keys
-      delete_outdir
+    end
+
+    should 'select all contigs' do
+      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4}
+--bg-parent #{@file5} --polyploidy true --no-only-frag-with-vars --no-filter-out-low-hmes --output test/cheripic_results".split)
+      Cheripic::Implementer.new(testcmd.options)
+      variants = Cheripic::Variants.new(testcmd.options)
+      variants.compare_pileups
+      hash = variants.hmes_frags
+      assert_equal %w{CL22874Contig1 scaffold6147 scaffold1920}, hash.keys
     end
 
   end
