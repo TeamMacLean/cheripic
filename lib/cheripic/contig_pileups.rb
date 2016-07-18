@@ -118,30 +118,21 @@ module Cheripic
         mut_parent_frac = @mut_parent[pos].var_base_frac
         if self.bg_parent.key?(pos)
           bg_parent_frac = @bg_parent[pos].var_base_frac
-          if mut_parent_frac.length == 2 and mut_parent_frac.key?(:ref)
-            bfr = Bfr.get_bfr(mut_parent_frac, bg_parent_frac)
-            @parent_hemi[pos] = bfr
-          elsif bg_parent_frac.length == 2 and bg_parent_frac.key?(:ref)
-            bfr = Bfr.get_bfr(mut_parent_frac, bg_parent_frac)
-            @parent_hemi[pos] = bfr
-          end
+          bfr = Bfr.get_bfr(mut_parent_frac, bg_parent_frac)
+          @parent_hemi[pos] = bfr
           self.bg_parent.delete(pos)
         else
-          if mut_parent_frac.length == 2 and mut_parent_frac.key?(:ref)
-            bfr = Bfr.get_bfr(mut_parent_frac)
-            @parent_hemi[pos] = bfr
-          end
+          bfr = Bfr.get_bfr(mut_parent_frac)
+          @parent_hemi[pos] = bfr
         end
       end
 
-      # now include all hemi snp unique background parent
+      # now include all hemi snp unique to background parent
       self.bg_parent.each_key do |pos|
         unless @parent_hemi.key?(pos)
           bg_parent_frac = @bg_parent[pos].var_base_frac
-          if bg_parent_frac.length == 2 and bg_parent_frac.key?(:ref)
-            bfr = Bfr.get_bfr(bg_parent_frac)
-            @parent_hemi[pos] = bfr
-          end
+          bfr = Bfr.get_bfr(bg_parent_frac)
+          @parent_hemi[pos] = bfr
         end
       end
     end
