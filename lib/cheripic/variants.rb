@@ -91,18 +91,17 @@ module Cheripic
       selected_contigs ={}
       only_frag_with_vars = Options.params.only_frag_with_vars
       @assembly.each_key do | frag |
-        if only_frag_with_vars and ratio_type == :hme_score
-          # selecting fragments which have a variant
-          numhm = @assembly[frag].hm_num
-          numht = @assembly[frag].ht_num
-          if numht + numhm > 2 * Options.params.hmes_adjust
-            selected_contigs[frag] = @assembly[frag]
-          end
-        elsif only_frag_with_vars and ratio_type == :bfr_score
-          # in polyploidy scenario selecting fragments with at least one bfr position
-          numbfr = @assembly[frag].hemi_num
-          if numbfr > 0
-            selected_contigs[frag] = @assembly[frag]
+        if only_frag_with_vars
+          if ratio_type == :hme_score
+            # selecting fragments which have a variant
+            if @assembly[frag].hm_num + @assembly[frag].ht_num > 2 * Options.params.hmes_adjust
+              selected_contigs[frag] = @assembly[frag]
+            end
+          else # ratio_type == :bfr_score
+            # in polyploidy scenario selecting fragments with at least one bfr position
+            if @assembly[frag].hemi_num > 0
+              selected_contigs[frag] = @assembly[frag]
+            end
           end
         else
           selected_contigs[frag] = @assembly[frag]
