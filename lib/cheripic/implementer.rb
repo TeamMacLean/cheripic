@@ -48,7 +48,19 @@ module Cheripic
     def process_variants
       @variants.verify_bg_bulk_pileup
       # print selected variants that could be potential markers or mutation
-
+      out_file = File.open("#{@options.output}/selected_variants.txt", 'w')
+      out_file.puts "HME_Score\tAlleleFreq\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
+      regions = Regions.new(@options.assembly)
+      @variants.hmes_frags.each_key do | frag |
+        contig_obj = @variants.assembly[frag]
+        positions = contig_obj.hm_pos.keys
+        positions.each do | pos |
+          pileup = @variants.pileups[frag].mut_bulk[pos]
+          seqs = regions.fetch_seq(frag,pos)
+          out_file.puts "#{contig_obj.hme_score}\t#{contig_obj.hm_pos[pos]}\t#{pileup.to_s.chomp}\t#{seqs[0]}\t#{pileup.consensus}\t#{seqs[1]}"
+        end
+      end
+      out_file.close
     end
 
     def run
