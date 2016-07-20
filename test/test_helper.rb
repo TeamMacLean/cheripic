@@ -19,6 +19,9 @@ require 'shoulda/context'
 
 def delete_outdir
   if Dir.exist?('test/cheripic_results')
+    if File.exist?('test/cheripic_results/selected_variants.txt')
+      File.delete('test/cheripic_results/selected_variants.txt')
+    end
     Dir.rmdir('test/cheripic_results')
   end
 end

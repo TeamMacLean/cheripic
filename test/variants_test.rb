@@ -92,6 +92,24 @@ class VariantsTest < Minitest::Test
       assert_equal %w{CL22874Contig1 scaffold6147 scaffold1920}, hash.keys
     end
 
+    should 'get variants' do
+      testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4}
+--bg-parent #{@file5} --polyploidy true --no-only-frag-with-vars --no-filter-out-low-hmes --output test/cheripic_results".split)
+      implement = Cheripic::Implementer.new(testcmd.options)
+      implement.extract_vars
+      implement.process_variants
+      filename = "#{testcmd.options[:output]}/selected_variants.txt"
+      selected =  Hash.new { |h,k| h[k] = {} }
+      File.open(filename, 'r').each do |line|
+        info = line.split(/\t/)
+        next if info[0] == 'HME_Score'
+        selected[info[2]][info[3].to_i] = 1
+      end
+      expected = { 'CL22874Contig1' => { 332 => 1, 369 => 1, 370 => 1, 390 => 1, 396 => 1, 398 => 1, 424 => 1},
+                   'scaffold6147' => { 294 => 1, 452 => 1, 469 => 1, 488 => 1, 511 => 1} }
+      assert_equal(expected, selected)
+    end
+
   end
 
 end
