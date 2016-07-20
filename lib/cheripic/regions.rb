@@ -13,8 +13,8 @@ module Cheripic
     def_delegators :@id_len, :each, :each_key, :each_value, :length, :[]
     attr_accessor :reference_db, :id_len
 
-    def initialize(options)
-      @reference_db = Bio::DB::Fasta::FastaFile.new({:fasta=>options.assembly})
+    def initialize(assembly)
+      @reference_db = Bio::DB::Fasta::FastaFile.new({:fasta=>assembly})
       @id_len = {}
       self.get_id_len
     end
