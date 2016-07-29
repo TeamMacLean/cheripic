@@ -5,7 +5,6 @@ module Cheripic
   class Options
 
     require 'ostruct'
-    # class << self; attr_accessor :params end
 
     @defaults = {
         :hmes_adjust => 0.5,
@@ -25,12 +24,10 @@ module Cheripic
         :bfr_adjust => 0.05,
         :sel_seq_len => 50
     }
-    # @params = OpenStruct.new(@defaults)
 
     def self.update(newset)
       @defaults.merge!(newset)
       self.params
-      # @params = OpenStruct.new(@defaults)
     end
 
     def self.params

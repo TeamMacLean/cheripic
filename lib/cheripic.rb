@@ -1,5 +1,5 @@
 
-# set up a golbal logger object to access across module
+# sets up a global logger object to access across module
 require 'yell'
 module Cheripic
 
