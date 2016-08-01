@@ -4,9 +4,7 @@ module Cheripic
 
   class Options
 
-    require 'ostruct'
-
-    @defaults = {
+    @def_settings = {
         :hmes_adjust => 0.5,
         :htlow => 0.2,
         :hthigh => 0.9,
@@ -25,13 +23,78 @@ module Cheripic
         :sel_seq_len => 50
     }
 
-    def self.update(newset)
-      @defaults.merge!(newset)
-      self.params
+    @user_settings = @def_settings
+
+    def self.hmes_adjust
+      @user_settings[:hmes_adjust]
     end
 
-    def self.params
-      OpenStruct.new(@defaults)
+    def self.htlow
+      @user_settings[:htlow]
+    end
+
+    def self.hthigh
+      @user_settings[:hthigh]
+    end
+
+    def self.mindepth
+      @user_settings[:mindepth]
+    end
+
+    def self.min_non_ref_count
+      @user_settings[:min_non_ref_count]
+    end
+
+    def self.min_indel_count_support
+      @user_settings[:min_indel_count_support]
+    end
+
+    def self.ignore_reference_n
+      @user_settings[:ignore_reference_n]
+    end
+
+    def self.mapping_quality
+      @user_settings[:mapping_quality]
+    end
+
+    def self.base_quality
+      @user_settings[:base_quality]
+    end
+
+    def self.noise
+      @user_settings[:noise]
+    end
+
+    def self.cross_type
+      @user_settings[:cross_type]
+    end
+
+    def self.only_frag_with_vars
+      @user_settings[:only_frag_with_vars]
+    end
+
+    def self.filter_out_low_hmes
+      @user_settings[:filter_out_low_hmes]
+    end
+
+    def self.polyploidy
+      @user_settings[:polyploidy]
+    end
+
+    def self.bfr_adjust
+      @user_settings[:bfr_adjust]
+    end
+
+    def self.sel_seq_len
+      @user_settings[:sel_seq_len]
+    end
+
+    def self.update(newset)
+      @user_settings = @def_settings.merge(newset)
+    end
+
+    def self.defaults
+      @user_settings = @def_settings
     end
 
   end
