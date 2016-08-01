@@ -3,7 +3,6 @@ module Cheripic
 
   class PileupError < CheripicError; end
 
-  require 'bio'
   require 'bio-samtools'
   require 'bio/db/pileup'
 
@@ -11,24 +10,10 @@ module Cheripic
 
     attr_accessor :defaults
 
-    def initialize(string, opts={})
+    def initialize(string)
       super(string)
-      set_defaults(opts)
       adj_read_bases
       @indelbases = 'acgtryswkmbdhvnACGTRYSWKMBDHVN'
-    end
-
-    def set_defaults(opts)
-      @defaults = {
-        noise: 0.1,                  # noise level for read depth
-        ht_low: 0.2,                 # min allele freq for heterozygosity
-        ht_high: 0.9,                # max allele freq for heterozygosity
-        min_depth: 6,                # minimum coverage for variant
-        min_non_ref_count: 3,
-        ignore_reference_n: true,
-        min_indel_count_support: 3,
-      }
-      @defaults.merge(opts)
     end
 
     # removes mapping quality information
@@ -95,9 +80,9 @@ module Cheripic
 
     # check if the pileup has the parameters we are looking for
     def is_var
-      ignore_reference_n = @defaults[:ignore_reference_n]
-      min_depth  = @defaults[:min_depth]
-      min_non_ref_count = @defaults[:min_non_ref_count]
+      ignore_reference_n = Options.ignore_reference_n
+      min_depth  = Options.mindepth
+      min_non_ref_count = Options.min_non_ref_count
 
       return false if self.ref_base == '*'
       return false if ignore_reference_n and self.ref_base =~ /^[nN]$/
@@ -133,12 +118,12 @@ module Cheripic
       hash = self.bases_hash
       snp_hash = {}
       coverage = hash[:cov]
-      return snp_hash if coverage < @defaults[:min_depth]
+      return snp_hash if coverage < Options.mindepth
       # calculate proportion of each base in coverage
       hash.each_key do | base |
         next if base == :cov
         freq = hash[base].to_f/coverage.to_f
-        next if freq <= @defaults[:noise]
+        next if freq <= Options.noise
         snp_hash[base] = freq
       end
       snp_hash
@@ -162,7 +147,7 @@ module Cheripic
       bases_hash = snp_base_hash(non_indel_bases)
       # check at least three reads are supporting indel
       indel_count = self.read_bases.count(delimiter)
-      if indel_count >= @defaults[:min_indel_count_support]
+      if indel_count >= Options.min_indel_count_support
         bases_hash[:indel] = indel_count
       end
       bases_hash
