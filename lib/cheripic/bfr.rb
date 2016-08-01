@@ -4,12 +4,20 @@ module Cheripic
 
   class BfrError < CheripicError; end
 
+  # A class to calculate bulk frequency ratio (bfr) using one or two hashes of base fractions resulted from pileup
+  #
+  # @!attribute [rw] bfr_adj
+  #   @return [Float] a float value to adjust the bfr calculation
   class Bfr
 
     attr_accessor :bfr_adj
 
-    # get bulk frequency ratio (bfr) for marked hemi snps only
-    # ignore positions with complex variants
+    # A method to get bulk frequency ratio (bfr) for selected hemi snps.
+    #   This is done by selecting which hash (mutant or background) to use for bfr calculation
+    #   either calculates fraction or bfr
+    #   and ignores positions with complex variants.
+    # @param mut_hash [Hash] a hash of base fractions from pileup of mutant bulk
+    # @param bg_hash [Hash] a hash of base fractions from pileup of background bulk
     def self.get_bfr(mut_hash, bg_hash='')
       @bfr_adj = Options.bfr_adjust
       if bg_hash != ''
@@ -37,7 +45,9 @@ module Cheripic
       bfr
     end
 
-    # calculate bfr using both mutant and background bulk information
+    # A method to calculate bfr using a base fraction hash with hemi-snp
+    # @param two_key_hash [Hash] a hash of base fractions from pileup with 2 keys (a ref and variant base)
+    # @param other_hash [Hash] a hash of base fractions from pileup
     def self.calculate_bfr(two_key_hash, other_hash)
       # fix :ref value if absent due to below noise depth
       unless two_key_hash.key?(:ref)
@@ -63,6 +73,8 @@ module Cheripic
       bfr
     end
 
+    # A method to calculate ratio using a base fraction hash
+    # @param hash [Hash] a hash of base fractions from pileup with 2 or 1 keys
     def self.calc_fraction(hash)
       unless hash.key?(:ref)
         hash[:ref] = 0
