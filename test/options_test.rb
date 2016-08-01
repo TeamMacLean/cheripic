@@ -4,8 +4,8 @@ class OptionsTest < Minitest::Test
 
   context 'options_test' do
 
-    setup do
-      @defaults = {
+    should 'get default params' do
+      defaults = {
           :hmes_adjust => 0.5,
           :htlow => 0.2,
           :hthigh => 0.9,
@@ -23,11 +23,23 @@ class OptionsTest < Minitest::Test
           :bfr_adjust => 0.05,
           :sel_seq_len => 50
       }
-      Cheripic::Options::update(@defaults)
-    end
-
-    should 'get default params' do
-      assert_equal(OpenStruct.new(@defaults), Cheripic::Options::params)
+      assert_equal(defaults, Cheripic::Options::defaults)
+      assert_equal(0.5, Cheripic::Options::hmes_adjust)
+      assert_equal(0.2, Cheripic::Options::htlow)
+      assert_equal(0.9, Cheripic::Options::hthigh)
+      assert_equal(6, Cheripic::Options::mindepth)
+      assert_equal(3, Cheripic::Options::min_non_ref_count)
+      assert_equal(3, Cheripic::Options::min_indel_count_support)
+      assert_equal(true, Cheripic::Options::ignore_reference_n)
+      assert_equal(20, Cheripic::Options::mapping_quality)
+      assert_equal(15, Cheripic::Options::base_quality)
+      assert_equal(0.1, Cheripic::Options::noise)
+      assert_equal('back', Cheripic::Options::cross_type)
+      assert_equal(true, Cheripic::Options::only_frag_with_vars)
+      assert_equal(true, Cheripic::Options::filter_out_low_hmes)
+      assert_equal(false, Cheripic::Options::polyploidy)
+      assert_equal(0.05, Cheripic::Options::bfr_adjust)
+      assert_equal(50, Cheripic::Options::sel_seq_len)
     end
 
     should 'get updated params' do
@@ -49,8 +61,7 @@ class OptionsTest < Minitest::Test
           :bfr_adjust => 0.05,
           :sel_seq_len => 50
       }
-      Cheripic::Options::update(newset)
-      assert_equal(OpenStruct.new(newset), Cheripic::Options::params)
+      assert_equal(newset, Cheripic::Options::update(newset))
     end
 
 
