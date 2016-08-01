@@ -45,8 +45,7 @@ module Cheripic
       # some indels will have ref base in the read and using
       # sum of hash values is going to give wrong additional coverage
       # from indels so including actual coverage from pileup
-      # bases_hash keys are :A, :C, :G, :T, :N, :ref, :indel and :cov
-      bases_hash[:cov] = self.coverage
+      # bases_hash keys are :A, :C, :G, :T, :N, :ref and :indel
       bases_hash
     end
 
@@ -117,11 +116,10 @@ module Cheripic
     def var_base_frac
       hash = self.bases_hash
       snp_hash = {}
-      coverage = hash[:cov]
+      coverage = self.coverage
       return snp_hash if coverage < Options.mindepth
       # calculate proportion of each base in coverage
       hash.each_key do | base |
-        next if base == :cov
         freq = hash[base].to_f/coverage.to_f
         next if freq <= Options.noise
         snp_hash[base] = freq
