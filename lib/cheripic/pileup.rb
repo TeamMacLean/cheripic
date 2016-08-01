@@ -52,7 +52,7 @@ module Cheripic
     def bases_hash
       if self.read_bases =~ /\+/
         bases_hash = indels_to_hash('+')
-      elsif self.read_bases =~ /\-/
+      elsif self.read_bases =~ /-/
         bases_hash = indels_to_hash('-')
       else
         bases_hash = snp_base_hash(self.read_bases)
@@ -85,7 +85,7 @@ module Cheripic
       read_bases = self.read_bases
       if read_bases =~ /\+/
         non_ref_count = indel_non_ref_count('+')
-      elsif read_bases =~ /\-/
+      elsif read_bases =~ /-/
         non_ref_count = indel_non_ref_count('-')
       else
         non_ref_count = read_bases.count('atgcATGC')

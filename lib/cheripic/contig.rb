@@ -31,7 +31,7 @@ module Cheripic
     end
 
     def hme_score
-      hmes_adjust = Options.params.hmes_adjust
+      hmes_adjust = Options.hmes_adjust
       if self.hm_num == 0 and self.ht_num == 0
         0.0
       else

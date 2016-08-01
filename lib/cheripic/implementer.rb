@@ -67,7 +67,7 @@ module Cheripic
       unless defined?(@variants.has_run)
         self.extract_vars
       end
-      if Options.params.polyploidy
+      if Options.polyploidy
         self.process_variants
         @variants.bfr_frags
       else

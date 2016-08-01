@@ -44,7 +44,7 @@ module Cheripic
     # @param pos [Integer]
     # @return [Array<String>]
     def fetch_seq(id, pos)
-      limit = Options.params.sel_seq_len + 1
+      limit = Options.sel_seq_len + 1
       len = @id_len[id]
       low = pos-limit <= 0 ? 0 : pos-limit
       high = pos+limit >= len ? len : pos+limit

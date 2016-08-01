@@ -89,12 +89,12 @@ module Cheripic
 
     def select_contigs(ratio_type)
       selected_contigs ={}
-      only_frag_with_vars = Options.params.only_frag_with_vars
+      only_frag_with_vars = Options.only_frag_with_vars
       @assembly.each_key do | frag |
         if only_frag_with_vars
           if ratio_type == :hme_score
             # selecting fragments which have a variant
-            if @assembly[frag].hm_num + @assembly[frag].ht_num > 2 * Options.params.hmes_adjust
+            if @assembly[frag].hm_num + @assembly[frag].ht_num > 2 * Options.hmes_adjust
               selected_contigs[frag] = @assembly[frag]
             end
           else # ratio_type == :bfr_score
@@ -127,14 +127,14 @@ module Cheripic
     end
 
     def get_cutoff(selected_contigs, ratio_type)
-      filter_out_low_hmes = Options.params.filter_out_low_hmes
+      filter_out_low_hmes = Options.filter_out_low_hmes
       # set minimum cut off hme_score or bfr_score to pick fragments with variants
       # calculate min hme score for back or out crossed data or bfr_score for polypoidy data
       # if no filtering applied set cutoff to 1.1
       if filter_out_low_hmes
         if ratio_type == :hme_score
-          adjust = Options.params.hmes_adjust
-          if Options.params.cross_type == 'back'
+          adjust = Options.hmes_adjust
+          if Options.cross_type == 'back'
             cutoff = (1.0/adjust) + 1.0
           else # outcross
             cutoff = (2.0/adjust) + 1.0

@@ -31,7 +31,7 @@ module Cheripic
       @ht_pos = {}
       @hemi_pos = {}
       @mut_bulk.each_key do | pos |
-        if Options.params.polyploidy and @parent_hemi.key?(pos)
+        if Options.polyploidy and @parent_hemi.key?(pos)
           bg_bases = ''
           if @bg_bulk.key?(pos)
             bg_bases = @bg_bulk[pos].var_base_frac
@@ -102,8 +102,8 @@ module Cheripic
     # calculate var zygosity for non-polyploid variants
     # increased range is used for heterozygosity for RNA-seq data
     def var_mode(ratio)
-      ht_low = Options.params.htlow
-      ht_high = Options.params.hthigh
+      ht_low = Options.htlow
+      ht_high = Options.hthigh
       mode = ''
       if ratio.between?(ht_low, ht_high)
         mode = :het
