@@ -18,6 +18,7 @@ module Cheripic
     #   and ignores positions with complex variants.
     # @param mut_hash [Hash] a hash of base fractions from pileup of mutant bulk
     # @param bg_hash [Hash] a hash of base fractions from pileup of background bulk
+    # @return [Float] a ratio calculated
     def self.get_bfr(mut_hash, bg_hash='')
       @bfr_adj = Options.bfr_adjust
       if bg_hash != ''
@@ -48,8 +49,9 @@ module Cheripic
     # A method to calculate bfr using a base fraction hash with hemi-snp
     # @param two_key_hash [Hash] a hash of base fractions from pileup with 2 keys (a ref and variant base)
     # @param other_hash [Hash] a hash of base fractions from pileup
+    # @return [Float] a ratio calculated
     def self.calculate_bfr(two_key_hash, other_hash)
-      # fix :ref value if absent due to below noise depth
+      # if :ref is absent such as below noise depth, then set to zero
       unless two_key_hash.key?(:ref)
         two_key_hash[:ref] = 0
       end
@@ -75,6 +77,7 @@ module Cheripic
 
     # A method to calculate ratio using a base fraction hash
     # @param hash [Hash] a hash of base fractions from pileup with 2 or 1 keys
+    # @return [Array<Float><String>] an array of ratio calculated and base character
     def self.calc_fraction(hash)
       unless hash.key?(:ref)
         hash[:ref] = 0
