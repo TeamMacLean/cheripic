@@ -4,6 +4,7 @@ require 'forwardable'
 
 module Cheripic
 
+# Custom error handling for Contig class
   class ContigError < CheripicError; end
 
   # A contig object from assembly that stores positions of
@@ -78,7 +79,7 @@ module Cheripic
 
     # Calculates mean of an array of numbers
     # @param array [Array] an array of bfr values from hemi_snp
-    # @returns [Float] mean value as float
+    # @return [Float] mean value as float
     def geom_mean(array)
       return array[0].to_f if array.length == 1
       array.reduce(:+) / array.size.to_f

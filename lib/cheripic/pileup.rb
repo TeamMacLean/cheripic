@@ -1,6 +1,7 @@
 # encoding: utf-8
 module Cheripic
 
+  # Custom error handling for Pileup class
   class PileupError < CheripicError; end
 
   require 'bio-samtools'

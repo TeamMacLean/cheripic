@@ -2,6 +2,7 @@
 
 module Cheripic
 
+  # Custom error handling for Implementer class
   class ImplementerError < CheripicError; end
 
   class Implementer

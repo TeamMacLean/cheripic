@@ -4,6 +4,7 @@ require 'forwardable'
 
 module Cheripic
 
+  # Custom error handling for Regions class
   class RegionsError < CheripicError; end
 
   # An application of Bio::DB::Fasta object that lets to extract selected regions of the fasta entries

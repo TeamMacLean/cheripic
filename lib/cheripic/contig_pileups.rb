@@ -4,8 +4,25 @@ require 'forwardable'
 
 module Cheripic
 
+  # Custom error handling for ContigPileup class
   class ContigPileupsError < CheripicError; end
 
+  # A ContigPileup object for each contig from assembly that stores
+  # pileup file information and variants are selected from analysis of pileup files
+  # selected variants from pileup files is stored as hashes
+  #
+  # @!attribute [rw] id
+  #   @return [String] id of the contig in assembly taken from fasta file
+  # @!attribute [rw] mut_bulk
+  #   @return [Hash] a hash of variant positions from mut_bulk as keys and pileup info as values
+  # @!attribute [rw] bg_bulk
+  #   @return [Hash] a hash of variant positions from bg_bulk as keys and pileup info as values
+  # @!attribute [rw] mut_parent
+  #   @return [Hash] a hash of variant positions from mut_parent as keys and pileup info as values
+  # @!attribute [rw] bg_parent
+  #   @return [Hash] a hash of variant positions from bg_parent as keys and pileup info as values
+  # @!attribute [rw] parent_hemi
+  #   @return [Hash] a hash of hemi-variant positions as keys and bfr calculated from parent bulks as values
   class ContigPileups
 
     include Enumerable

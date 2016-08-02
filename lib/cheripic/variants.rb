@@ -4,6 +4,7 @@ require 'forwardable'
 
 module Cheripic
 
+  # Custom error handling for Variants class
   class VariantsError < CheripicError; end
 
   class Variants

@@ -2,6 +2,7 @@
 
 module Cheripic
 
+  # Custom error handling for Bfr class
   class BfrError < CheripicError; end
 
   # A class to calculate bulk frequency ratio (bfr) using one or two hashes of base fractions resulted from pileup
