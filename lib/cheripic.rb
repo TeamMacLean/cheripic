@@ -1,6 +1,10 @@
 
 # sets up a global logger object to access across module
 require 'yell'
+
+# Computing Homozygosity Enriched Regions In genomes to Prioritize Identification of Candidate variants (CHERIPIC)
+# Cheripic module provides tools and pipeline to extract potential candidate mutations
+# in around the region of the genome hosting the causative mutation behind the phenotype of interest.
 module Cheripic
 
   # custom error handling

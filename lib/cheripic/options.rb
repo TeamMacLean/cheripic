@@ -114,7 +114,7 @@ module Cheripic
       @user_settings[:polyploidy]
     end
 
-    # A value to adjust calculation of bulk frequency ratio(bfr)
+    # A value to adjust calculation of bulk frequency ratio (bfr)
     # @return [Float]
     def self.bfr_adjust
       @user_settings[:bfr_adjust]

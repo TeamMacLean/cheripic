@@ -6,14 +6,27 @@ module Cheripic
 
   class ContigError < CheripicError; end
 
+  # A contig object from assembly that stores positions of
+  # homozygous, heterozygous and hemi-variants
+  #
+  # @!attribute [rw] hm_pos
+  #   @return [Hash] a hash of homozygous variant positions as keys and allele frequency as values
+  # @!attribute [rw] ht_pos
+  #   @return [Hash] a hash of heterozygous variant positions as keys and allele frequency as values
+  # @!attribute [rw] hemi_pos
+  #   @return [Hash] a hash of hemi-variant positions as keys and allele frequency as values
+  # @!attribute [r] id
+  #   @return [String] id of the contig in assembly taken from fasta file
+  # @!attribute [r] length
+  #   @return [Integer] length of contig in bases
   class Contig
 
-    include Enumerable
-    extend Forwardable
-    # delegate [:size, :length] => :@contig
-    # def_delegator :@contig, :entry_id, :id
-    attr_accessor :hm_pos, :ht_pos, :hemi_pos, :id, :length
+    attr_accessor :hm_pos, :ht_pos, :hemi_pos
+    attr_reader :id, :length
 
+    # creates a Contig object using fasta entry
+    #
+    # @param fasta [Bio::FastaFormat] an individual fasta entry from input assembly file
     def initialize (fasta)
       @id = fasta.entry_id
       @length = fasta.length
@@ -22,14 +35,21 @@ module Cheripic
       @hemi_pos = {}
     end
 
+    # Number of homozygous variants identified in the contig
+    # @return [Integer]
     def hm_num
       self.hm_pos.length
     end
 
+    # Number of heterozygous variants identified in the contig
+    # @return [Integer]
     def ht_num
       self.ht_pos.length
     end
 
+    # Homozygosity enrichment score calculated using
+    # hm_num and ht_num of the contig object
+    # @return [Float]
     def hme_score
       hmes_adjust = Options.hmes_adjust
       if self.hm_num == 0 and self.ht_num == 0
@@ -39,10 +59,15 @@ module Cheripic
       end
     end
 
+    # Number of hemi-variants identified in the contig
+    # @return [Integer]
     def hemi_num
       self.hemi_pos.length
     end
 
+    # Mean of bulk frequency ratios (bfr) calculated using
+    # bfr values all hemi_pos of the contig
+    # @return [Float]
     def bfr_score
       if self.hemi_pos.values.empty?
         0.0
@@ -51,7 +76,9 @@ module Cheripic
       end
     end
 
-    # geometric mean of an array of numbers
+    # Calculates mean of an array of numbers
+    # @param array [Array] an array of bfr values from hemi_snp
+    # @returns [Float] mean value as float
     def geom_mean(array)
       return array[0].to_f if array.length == 1
       array.reduce(:+) / array.size.to_f
