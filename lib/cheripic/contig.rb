@@ -26,7 +26,6 @@ module Cheripic
     attr_reader :id, :length
 
     # creates a Contig object using fasta entry
-    #
     # @param fasta [Bio::FastaFormat] an individual fasta entry from input assembly file
     def initialize (fasta)
       @id = fasta.entry_id

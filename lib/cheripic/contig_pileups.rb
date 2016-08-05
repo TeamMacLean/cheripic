@@ -34,6 +34,8 @@ module Cheripic
     attr_accessor :id, :parent_hemi
     attr_accessor :mut_bulk, :bg_bulk, :mut_parent, :bg_parent
 
+    # creates a ContigPileup object using fasta entry id
+    # @param fasta [String] a contig id from fasta entry
     def initialize (fasta)
       @id = fasta
       @mut_bulk = {}
@@ -43,6 +45,9 @@ module Cheripic
       @parent_hemi = {}
     end
 
+    # bulk pileups are compared and variant positions are selected
+    # @return [Array<Hash>] variant positions are stored in hashes
+    # for homozygous, heterozygous and hemi-variant positions
     def bulks_compared
       @hm_pos = {}
       @ht_pos = {}
@@ -63,9 +68,11 @@ module Cheripic
       [@hm_pos, @ht_pos, @hemi_pos]
     end
 
-    # we are only dealing with single element hashes
-    # so discard hashes with more than one element and empty hashes
-    # empty hash results from position below selected coverage or bases freq below noise
+    # mut_bulk and bg_bulk pileups are compared at selected position of the contig.
+    # Empty hash results from position below selected coverage
+    # or bases freq below noise and such positions are deleted.
+    # @param pos [Integer] position in the contig
+    # stores variant type, position and allele fraction to either @hm_pos or @ht_pos hashes
     def compare_pileup(pos)
       base_hash = @mut_bulk[pos].var_base_frac
       base_hash.delete(:ref)
@@ -73,22 +80,43 @@ module Cheripic
       # we could ignore complex loci or
       # take the variant type based on predominant base
       if base_hash.length > 1
-        mut_type, ratio = var_mode(base_hash.values.max)
+        fraction = base_hash.values.max
+        mut_type = var_mode(fraction)
       else
-        base = base_hash.keys[0]
-        mut_type, ratio = var_mode(base_hash[base])
+        fraction = base_hash[base_hash.keys[0]]
+        mut_type = var_mode(fraction)
       end
       if @bg_bulk.key?(pos)
         bg_type = bg_bulk_var(pos)
         mut_type = compare_var_type(mut_type, bg_type)
       end
       unless mut_type == nil
-        categorise_pos(mut_type, pos, ratio)
+        categorise_pos(mut_type, pos, fraction)
       end
     end
 
-    # if both bulks have homozygous var at this position
-    # then ignore the position
+    # Categorizes variant zygosity based on the allele fraction provided.
+    # Uses lower and upper limit set for heterozygosity in the options.
+    # @note consider increasing the range of heterozygosity limits for RNA-seq data
+    # @param fraction [Float] allele fraction
+    # @return [Symbol] of either :het or :hom to represent heterozygous or homozygous respectively
+    def var_mode(fraction)
+      ht_low = Options.htlow
+      ht_high = Options.hthigh
+      mode = ''
+      if fraction.between?(ht_low, ht_high)
+        mode = :het
+      elsif fraction > ht_high
+        mode = :hom
+      end
+      mode
+    end
+
+    # Simple comparison of variant type of mut and bg bulks at a position
+    # If both bulks have homozygous variant at selected position then it is ignored
+    # @param muttype [Symbol] values are either :hom or :het
+    # @param bgtype [Symbol] values are either :hom or :het
+    # @return [Symbol] variant mode of the mut bulk (:hom or :het) at the position or nil
     def compare_var_type(muttype, bgtype)
       if muttype == :hom and bgtype == :hom
         nil
@@ -97,17 +125,26 @@ module Cheripic
       end
     end
 
+    # Method to extract var_mode from pileup information at a position in contig
+    #
+    # @param pos [Integer] position in the contig
+    # @return [Symbol] variant mode of the background bulk (:hom or :het) at the position
     def bg_bulk_var(pos)
       bg_base_hash = @bg_bulk[pos].var_base_frac
       if bg_base_hash.length > 1
         # taking only var mode
-        var_mode(bg_base_hash.values.max)[0]
+        var_mode(bg_base_hash.values.max)
       else
         # taking only var mode
-        var_mode(bg_base_hash[0])[0]
+        var_mode(bg_base_hash[0])
       end
     end
 
+    # method stores pos as key and allele fraction as value
+    # to @hm_pos or @ht_pos hash based on variant type
+    # @param var_type [Symbol]  values are either :hom or :het
+    # @param pos [Integer] position in the contig
+    # @param ratio [Float] allele fraction
     def categorise_pos(var_type, pos, ratio)
       if var_type == :hom
         @hm_pos[pos] = ratio
@@ -116,20 +153,10 @@ module Cheripic
       end
     end
 
-    # calculate var zygosity for non-polyploid variants
-    # increased range is used for heterozygosity for RNA-seq data
-    def var_mode(ratio)
-      ht_low = Options.htlow
-      ht_high = Options.hthigh
-      mode = ''
-      if ratio.between?(ht_low, ht_high)
-        mode = :het
-      elsif ratio > ht_high
-        mode = :hom
-      end
-      [mode, ratio]
-    end
-
+    # Compares parental pileups for the contig and identify position
+    # that indicate variants from homelogues called hemi-snps
+    # and calculates bulk frequency ratio (bfr)
+    # @return [Hash] parent_hemi hash with position as key and bfr as value
     def hemisnps_in_parent
       # mark all the hemi snp based on both parents
       self.mut_parent.each_key do |pos|

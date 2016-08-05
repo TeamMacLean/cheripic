@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+require 'cheripic'
+
+# rescue errors to get clean error messages through the logger
+# backtrace can be accessed by setting --loglevel to 'debug' option
+begin
+  submission = Cheripic::Cmd.new ARGV
+  submission.run
+rescue Cheripic::CheripicError => e
+  logger.error e.message
+  logger.debug e.backtrace unless e.backtrace.nil?
+  exit 1
+end
