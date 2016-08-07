@@ -2,6 +2,10 @@
 
 module Cheripic
 
+  # A command line option and processing object to handle input options
+  #
+  # @!attribute [rw] options
+  #   @return [Hash] a hash of trollop option names as keys and user or default setting as values
   class Cmd
 
     require 'trollop'
@@ -10,11 +14,16 @@ module Cheripic
 
     attr_accessor :options
 
+    # creates a Cmd object using input string entry
+    # @param args [String]
     def initialize(args)
       @options = parse_arguments(args)
       check_arguments
     end
 
+    # method to check input command string and run appropriate
+    # method of the object (help or examples or parsing arguments)
+    # @param args [String]
     def parse_arguments(args)
       Trollop::with_standard_exception_handling argument_parser do
         if args.empty? || args.include?('-h') || args.include?('--help')
@@ -26,6 +35,8 @@ module Cheripic
       end
     end
 
+    # trollop argument_parser for input args string and
+    # @return [Hash] a hash of trollop option names as keys and user or default setting as values
     def argument_parser
       cmds = self
       Trollop::Parser.new do
@@ -106,40 +117,44 @@ module Cheripic
       end
     end
 
+    # help message to display from command line
     def help_message
-      <<-EOS
+      msg = <<-EOS
 
-Cheripic v#{Cheripic::VERSION.dup}
-Authors: Shyam Rallapalli and Dan MacLean
+      Cheripic v#{Cheripic::VERSION.dup}
+      Authors: Shyam Rallapalli and Dan MacLean
 
-Description: Candidate mutation and closely linked marker selection for non reference genomes
-Uses bulk segregant data from non-reference sequence genomes
+      Description: Candidate mutation and closely linked marker selection for non reference genomes
+      Uses bulk segregant data from non-reference sequence genomes
 
-Inputs:
-1. Needs a reference fasta file of asssembly use for variant analysis
-2. Pileup files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
-3. If polyploid species, include of pileup from one or both parents
+      Inputs:
+      1. Needs a reference fasta file of asssembly use for variant analysis
+      2. Pileup files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
+      3. If polyploid species, include of pileup from one or both parents
 
-USAGE:
-cheripic <options>
+      USAGE:
+      cheripic <options>
 
-OPTIONS:
+      OPTIONS:
 
       EOS
+      msg.split("\n").map{ |line| line.lstrip }.join("\n")
     end
 
+    # examples to display from command line
     def print_examples
       msg = <<-EOS
 
-    Cheripic v#{Cheripic::VERSION.dup}
+        Cheripic v#{Cheripic::VERSION.dup}
 
-    EXAMPLE COMMANDS:
+        EXAMPLE COMMANDS:
 
       EOS
       puts msg.split("\n").map{ |line| line.lstrip }.join("\n")
       exit(0)
     end
 
+    # calls other methods to check if command line inputs are valid
     def check_arguments
       check_output_dir
       check_log_level
@@ -153,6 +168,7 @@ OPTIONS:
     #   end
     # end
 
+    # checks if input files are valid
     def check_input_files
       if @options[:polyploidy]
         inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
@@ -173,6 +189,7 @@ OPTIONS:
       end
     end
 
+    # checks if output directory already exists
     def check_output_dir
       if Dir.exist?(@options[:output])
         raise CheripicArgError.new "#{@options[:output]} directory exists" +
@@ -180,6 +197,7 @@ OPTIONS:
       end
     end
 
+    # checks and sets logger level
     def check_log_level
       unless %w(error info warn debug).include?(@options[:loglevel])
         raise CheripicArgError.new "Loglevel #{@options[:loglevel]} is not valid. " +
@@ -188,6 +206,10 @@ OPTIONS:
       logger.level = Yell::Level.new @options[:loglevel].to_sym
     end
 
+    # Initializes an Implementer object using input options
+    # and calls run method of the Implementer to start the pipeline
+    # A hash of trollop option names as keys and user or default
+    # setting as values is passed to Implementer object
     def run
       @options[:output] = File.expand_path @options[:output]
       analysis = Implementer.new(@options)
