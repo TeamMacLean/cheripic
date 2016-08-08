@@ -7,15 +7,17 @@ class CmdTest < Minitest::Test
     setup do
       @file1 = File.join(File.dirname(__FILE__), 'data', 'input.fasta')
       @file2 = File.join(File.dirname(__FILE__), 'data', 'file1.pileup')
+    end
+
+    teardown do
       delete_outdir
     end
 
     should 'fail if output directory is present' do
-      Dir.mkdir('test/test_output')
+      Dir.mkdir('test/cheripic_results')
       assert_raises Cheripic::CheripicArgError do
-        Cheripic::Cmd.new('--output test/test_output'.split)
+        Cheripic::Cmd.new('--output test/cheripic_results'.split)
       end
-      Dir.rmdir('test/test_output')
     end
 
     should 'fail on non recognised log level' do
@@ -72,11 +74,13 @@ class CmdTest < Minitest::Test
       end
     end
 
-    # should 'get some value from analysis run' do
-    #   testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file2} --output test/cheripic_results".split)
-    #   assert_equal(1, testcmd.run)
-    #   delete_outdir
-    # end
+    should 'get some value from analysis run' do
+      file1 = File.join(File.dirname(__FILE__), 'data', 'picked_fasta.fa')
+      file2 = File.join(File.dirname(__FILE__), 'data', 'mut_bulk.pileup')
+      file3 = File.join(File.dirname(__FILE__), 'data', 'wt_bulk.pileup')
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{file2} --bg-bulk #{file3} --output test/cheripic_results".split)
+      assert_equal(true, testcmd.run)
+    end
 
   end
 
