@@ -5,12 +5,21 @@ module Cheripic
   # Custom error handling for Implementer class
   class ImplementerError < CheripicError; end
 
+  # An Implementer object for running pipeline from Cmd object options
+  #
+  # @!attribute [r] options
+  #   @return [Hash] a hash of required input files names as keys and
+  #   user provided file paths as values taken from Cmd object
+  # @!attribute [r] variants
+  #   @return [<Cheripic::Variants>] a Variants object initialized using options from Cmd object
   class Implementer
 
     require 'ostruct'
     require 'fileutils'
-    attr_accessor :options, :variants
+    attr_reader :options, :variants
 
+    # Initializes an Implementer object using inputs from cmd object
+    # @param inputs [Hash] a hash of trollop option names as keys and user or default setting as values from Cmd object
     def initialize(inputs)
       set1 = %i{assembly
                 input_format
@@ -41,11 +50,15 @@ module Cheripic
       FileUtils.mkdir_p @options.output
     end
 
+    # Initializes a Variants object using using input options (files).
+    # Each pileup file is processed and bulks are compared
     def extract_vars
       @variants = Variants.new(@options)
       @variants.compare_pileups
     end
 
+    # Extracted variants from bulk comparison are re-analysed
+    # and selected variants are written to a file
     def process_variants
       @variants.verify_bg_bulk_pileup
       # print selected variants that could be potential markers or mutation
@@ -64,6 +77,9 @@ module Cheripic
       out_file.close
     end
 
+    # Wrapper to extract and isolate selected variants
+    # implements extract_vars and process_variants and
+    # if data is from polyploids extracts contigs with high bfr
     def run
       unless defined?(@variants.has_run)
         self.extract_vars

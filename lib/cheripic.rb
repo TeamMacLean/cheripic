@@ -9,7 +9,9 @@ module Cheripic
 
   # custom error handling
   class CheripicError < StandardError; end
+  # custom error handling for IO
   class CheripicIOError < CheripicError; end
+  # custom error handling for Arg
   class CheripicArgError < CheripicError; end
 
   # Define a logger and pass `Object` as name.
