@@ -20,14 +20,14 @@ module Cheripic
   #   @return [Hash] a hash of contigs with selected hme score, a subset of assembly hash
   # @!attribute [r] bfr_frags
   #   @return [Hash] a hash of contigs with selected bfr score, a subset of assembly hash
-  # @!attribute [r] has_run
-  #   @return [Boolean] a Boolean option to check if pileups for the assembly are extracted or not
+  # @!attribute [r] pileups_analyzed
+  #   @return [Boolean] a Boolean option to check if pileups for the assembly are analyzed or not
   class Variants
 
     include Enumerable
     extend Forwardable
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
-    attr_reader :assembly, :has_run, :pileups, :hmes_frags, :bfr_frags
+    attr_reader :assembly, :pileups, :hmes_frags, :bfr_frags, :pileups_analyzed
 
     # creates a Variants object using user input files
     # @param options [Hash] a hash of required input files as keys and file paths as values
@@ -49,10 +49,11 @@ module Cheripic
         @assembly[contig.id] = contig
         @pileups[contig.id] = ContigPileups.new(contig.id)
       end
+      @pileups_analyzed = false
     end
 
     # Reads and store pileup data for each of input bulk and parents pileup files
-    # And sets has_run to true that pileups files are processed
+    # And sets pileups_analyzed to true that pileups files are processed
     def analyse_pileups
       @bg_bulk = @params.bg_bulk
       @mut_parent = @params.mut_parent
@@ -65,7 +66,7 @@ module Cheripic
         end
       end
 
-      @has_run = true
+      @pileups_analyzed = true
     end
 
     # Input pileup file is read and positions are selected that pass the thresholds
@@ -88,7 +89,7 @@ module Cheripic
     # If polyploidy set to trye and mut_parent and bg_parent bulks are provided
     # hemisnps in parents are extracted for bulk frequency ratio analysis
     def compare_pileups
-      unless defined?(@has_run)
+      unless @pileups_analyzed
         self.analyse_pileups
       end
       @assembly.each_key do | id |

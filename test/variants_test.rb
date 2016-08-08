@@ -23,7 +23,7 @@ class VariantsTest < Minitest::Test
 
     should 'extract pileups' do
       @variants.analyse_pileups
-      assert_equal true, @variants.has_run
+      assert_equal true, @variants.pileups_analyzed
     end
 
     should 'select hmes contigs' do

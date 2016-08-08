@@ -16,7 +16,7 @@ module Cheripic
 
     require 'ostruct'
     require 'fileutils'
-    attr_reader :options, :variants
+    attr_reader :options, :variants, :has_run
 
     # Initializes an Implementer object using inputs from cmd object
     # @param inputs [Hash] a hash of trollop option names as keys and user or default setting as values from Cmd object
@@ -48,6 +48,8 @@ module Cheripic
       settings = inputs.select { |k| set2.include?(k) }
       Options.update(settings)
       FileUtils.mkdir_p @options.output
+      @vars_extracted = false
+      @has_run = false
     end
 
     # Initializes a Variants object using using input options (files).
@@ -55,6 +57,7 @@ module Cheripic
     def extract_vars
       @variants = Variants.new(@options)
       @variants.compare_pileups
+      @vars_extracted = true
     end
 
     # Extracted variants from bulk comparison are re-analysed
@@ -81,7 +84,7 @@ module Cheripic
     # implements extract_vars and process_variants and
     # if data is from polyploids extracts contigs with high bfr
     def run
-      unless defined?(@variants.has_run)
+      unless @vars_extracted
         self.extract_vars
       end
       if Options.polyploidy
@@ -90,6 +93,7 @@ module Cheripic
       else
         self.process_variants
       end
+      @has_run = true
     end
 
   end
