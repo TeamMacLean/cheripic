@@ -7,13 +7,30 @@ module Cheripic
   # Custom error handling for Variants class
   class VariantsError < CheripicError; end
 
+  # A Variants object for each analysis pipeline that stores
+  # assembly details and extracts pileups for each contig
+  # assembly and pileup details are stored as
+  # hashes of Contig and ContigPileups objects
+  #
+  # @!attribute [r] assembly
+  #   @return [Hash] a hash of contig ids from assembly as keys and respective Contig objects as values
+  # @!attribute [r] pileups
+  #   @return [Hash] a hash of contig ids from assembly as keys and respective ContigPileups objects as values
+  # @!attribute [r] hmes_frags
+  #   @return [Hash] a hash of contigs with selected hme score, a subset of assembly hash
+  # @!attribute [r] bfr_frags
+  #   @return [Hash] a hash of contigs with selected bfr score, a subset of assembly hash
+  # @!attribute [r] has_run
+  #   @return [Boolean] a Boolean option to check if pileups for the assembly are extracted or not
   class Variants
 
     include Enumerable
     extend Forwardable
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
-    attr_accessor :assembly, :has_run, :pileups, :hmes_frags, :bfr_frags
+    attr_reader :assembly, :has_run, :pileups, :hmes_frags, :bfr_frags
 
+    # creates a Variants object using user input files
+    # @param options [Hash] a hash of required input files as keys and file paths as values
     def initialize(options)
       @params = options
       @assembly = {}
@@ -34,8 +51,8 @@ module Cheripic
       end
     end
 
-    # Read and store pileup data for each bulk and parents
-    #
+    # Reads and store pileup data for each of input bulk and parents pileup files
+    # And sets has_run to true that pileups files are processed
     def analyse_pileups
       @bg_bulk = @params.bg_bulk
       @mut_parent = @params.mut_parent
@@ -51,6 +68,10 @@ module Cheripic
       @has_run = true
     end
 
+    # Input pileup file is read and positions are selected that pass the thresholds
+    # @param pileupfile [String] path to the pileup file to read
+    # @param sym [Symbol] Symbol of the pileup file used to write selected variants
+    # pileup information to respective ContigPileups object
     def extract_pileup(pileupfile, sym)
       # read mpileup file and process each variant
       File.foreach(pileupfile) do |line|
@@ -62,6 +83,10 @@ module Cheripic
       end
     end
 
+    # Once pileup files are analysed and variants are extracted from each bulk;
+    # bulks are compared to identify and isolate variants for downstream analysis.
+    # If polyploidy set to trye and mut_parent and bg_parent bulks are provided
+    # hemisnps in parents are extracted for bulk frequency ratio analysis
     def compare_pileups
       unless defined?(@has_run)
         self.analyse_pileups
@@ -76,11 +101,15 @@ module Cheripic
       end
     end
 
+    # From Assembly contig objects, contigs are selected based on user selected options
+    # for homozygosity enrichment score (hme_score)
     def hmes_frags
       # calculate every time method gets called
       @hmes_frags = select_contigs(:hme_score)
     end
 
+    # From Assembly contig objects, contigs are selected based on user selected options
+    # for bulk frequency ratio (bfr_score)
     def bfr_frags
       unless defined?(@bfr_frags)
         @bfr_frags = select_contigs(:bfr_score)
@@ -88,6 +117,11 @@ module Cheripic
       @bfr_frags
     end
 
+    # Applies selection procedure on assembly contigs based on the ratio_type provided.
+    # If only_frag_with_vars is set to true then contigs without any variant are discarded for :hme_score
+    # while contigs without any hemisnps are discarded for :bfr_score
+    # If filter_out_low_hmes is set to true then contigs are further filtered based on a cut off value of the score
+    # @param ratio_type [Symbol] ratio_type is either :hme_score or :bfr_score
     def select_contigs(ratio_type)
       selected_contigs ={}
       only_frag_with_vars = Options.only_frag_with_vars
@@ -117,6 +151,10 @@ module Cheripic
       selected_contigs
     end
 
+    # Filters out contigs below a cutoff for selected ratio_type
+    # a cutoff value is calculated based on ratio_type provided
+    # @param ratio_type [Symbol] ratio_type is either :hme_score or :bfr_score
+    # @param selected_contigs [Hash] a hash of contigs with selected ratio_type, a subset of assembly hash
     def filter_contigs(selected_contigs, ratio_type)
       cutoff = get_cutoff(selected_contigs, ratio_type)
       selected_contigs.each_key do | frag |
@@ -127,6 +165,10 @@ module Cheripic
       selected_contigs
     end
 
+    # Cut off value calculation used to filter out low scored contigs.
+    #
+    # @param ratio_type [Symbol] ratio_type is either :hme_score or :bfr_score
+    # @param selected_contigs [Hash] a hash of contigs with selected ratio_type, a subset of assembly hash
     def get_cutoff(selected_contigs, ratio_type)
       filter_out_low_hmes = Options.filter_out_low_hmes
       # set minimum cut off hme_score or bfr_score to pick fragments with variants
@@ -149,6 +191,9 @@ module Cheripic
       cutoff
     end
 
+    # Cut off value calculation for bfr contigs.
+    # ratio value at index 0.1% length of an array or at index zero of an array that contains decreasing order of bfr ratios
+    # @param selected_contigs [Hash] a hash of contigs with selected bfr score, a subset of assembly hash
     def bfr_cutoff(selected_contigs, prop=0.1)
       ratios = []
       selected_contigs.each_key do | frag |
@@ -163,8 +208,8 @@ module Cheripic
       ratios[index - 1]
     end
 
-    # method is to discard homozygous variant positions for which background bulk
-    # pileup shows proportion higher than 0.35 for variant allele/non-reference allele
+    # Method is to discard homozygous variant positions for which background bulk
+    # pileup shows a fraction value higher than 0.35 for variant allele/non-reference allele
     # a recessive variant is expected to have 1/3rd frequency in background bulk
     def verify_bg_bulk_pileup
       unless defined?(@hmes_frags)

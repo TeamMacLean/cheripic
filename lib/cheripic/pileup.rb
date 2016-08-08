@@ -7,10 +7,11 @@ module Cheripic
   require 'bio-samtools'
   require 'bio/db/pileup'
 
+  # An extension of Bio::DB::Pileup object to process pileup information at a given position
   class Pileup < Bio::DB::Pileup
 
-    attr_accessor :defaults
-
+    # creates a Pileup object using a pileup information as string
+    # @param string [String] pileup information line for a given position
     def initialize(string)
       super(string)
       adj_read_bases
