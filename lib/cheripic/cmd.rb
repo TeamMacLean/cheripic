@@ -149,7 +149,12 @@ module Cheripic
         Cheripic v#{Cheripic::VERSION.dup}
 
         EXAMPLE COMMANDS:
-
+          1. cheripic -f assembly.fa -a mutbulk.pileup -b bgbulk.pileup --output=cheripic_output
+          2. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup
+                --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true --output cheripic_results
+          3. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup
+                --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true
+                --no-only-frag-with-vars --no-filter-out-low-hmes --output cheripic_results
       EOS
       puts msg.split("\n").map{ |line| line.lstrip }.join("\n")
       exit(0)

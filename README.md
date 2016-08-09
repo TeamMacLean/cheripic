@@ -85,6 +85,27 @@ OPTIONS:
   --examples                                         shows some example commands with explanation
 
 ```
+        
+        
+        
+Example Commands
+
+
+```
+EXAMPLE COMMANDS:
+  1. cheripic -f assembly.fa -a mutbulk.pileup -b bgbulk.pileup --output=cheripic_output
+  2. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup 
+        --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true --output cheripic_results
+  3. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup 
+        --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true 
+        --no-only-frag-with-vars --no-filter-out-low-hmes --output cheripic_results
+
+```
+
+
+By default contigs with out a variant and thos contigs with lower scores are discarded. 
+      so use options `--no-only-frag-with-vars` and `--no-filter-out-low-hmes` to disable them 
+
 
 ## Development
 
