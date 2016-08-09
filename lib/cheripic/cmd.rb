@@ -40,6 +40,7 @@ module Cheripic
     def argument_parser
       cmds = self
       Trollop::Parser.new do
+        version Cheripic::VERSION
         banner cmds.help_message
         opt :assembly, 'Assembly file in FASTA format',
             :short => '-f',
