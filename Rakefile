@@ -71,8 +71,12 @@ def create_package(target)
   sh "cp packaging/cheripic.gemspec Gemfile Gemfile.lock LICENSE.txt #{package_dir}/lib/app/"
   sh "mkdir #{package_dir}/lib/app/.bundle"
   sh "cp packaging/bundler-config #{package_dir}/lib/app/.bundle/config"
-  # if !ENV['DIR_ONLY']
-  #   sh "tar -czf #{package_dir}.tar.gz #{package_dir}"
-  #   sh "rm -rf #{package_dir}"
-  # end
+  if target == 'linux-x86_64'
+    sh "cp -p packaging/linux-x86_64_samtools/external/* packaging/cheripic-#{VERSION}-linux-x86_64/lib/app/ruby/2.1.0/gems/bio-samtools-2.4.0/lib/bio/db/sam/external/"
+  end
+  unless ENV['DIR_ONLY']
+    Dir.chdir('packaging') do
+      sh "gtar -czf #{package_dest}.tar.gz #{package_dest}"
+    end
+  end
 end
