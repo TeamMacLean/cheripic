@@ -20,7 +20,7 @@ module Cheripic
         :noise => 0.1,
         :cross_type => 'back',
         :use_all_contigs => false,
-        :filter_out_low_hmes => true,
+        :include_low_hmes => false,
         :polyploidy => false,
         :bfr_adjust => 0.05,
         :sel_seq_len => 50
@@ -105,8 +105,8 @@ module Cheripic
 
     # Option to whether to ignore or consider the contigs with low HME score
     # @return [Boolean]
-    def self.filter_out_low_hmes
-      @user_settings[:filter_out_low_hmes]
+    def self.include_low_hmes
+      @user_settings[:include_low_hmes]
     end
 
     # Option to whether to set the input data is from polyploid or not

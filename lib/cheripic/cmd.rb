@@ -97,9 +97,9 @@ module Cheripic
         opt :use_all_contigs, 'option to select all contigs or only contigs containing variants for analysis',
             :type => FalseClass,
             :default => false
-        opt :filter_out_low_hmes, 'ignore variants from contigs with low hmescore or bfr to list in the final output',
+        opt :include_low_hmes, 'option to include or discard variants from contigs with low hme-score or bfr score to list in the final output',
             :type => FalseClass,
-            :default => true
+            :default => false
         opt :polyploidy, 'Set if the data input is from polyploids',
             :type => FalseClass,
             :default => false

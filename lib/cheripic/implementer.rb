@@ -42,7 +42,7 @@ module Cheripic
                 noise
                 cross_type
                 use_all_contigs
-                filter_out_low_hmes
+                include_low_hmes
                 polyploidy
                 bfr_adjust}
       settings = inputs.select { |k| set2.include?(k) }

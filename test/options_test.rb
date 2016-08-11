@@ -18,7 +18,7 @@ class OptionsTest < Minitest::Test
           :noise => 0.1,
           :cross_type => 'back',
           :use_all_contigs => false,
-          :filter_out_low_hmes => true,
+          :include_low_hmes => false,
           :polyploidy => false,
           :bfr_adjust => 0.05,
           :sel_seq_len => 50
@@ -36,7 +36,7 @@ class OptionsTest < Minitest::Test
       assert_equal(0.1, Cheripic::Options::noise)
       assert_equal('back', Cheripic::Options::cross_type)
       assert_equal(false, Cheripic::Options::use_all_contigs)
-      assert_equal(true, Cheripic::Options::filter_out_low_hmes)
+      assert_equal(false, Cheripic::Options::include_low_hmes)
       assert_equal(false, Cheripic::Options::polyploidy)
       assert_equal(0.05, Cheripic::Options::bfr_adjust)
       assert_equal(50, Cheripic::Options::sel_seq_len)
@@ -56,7 +56,7 @@ class OptionsTest < Minitest::Test
           :noise => 0.2,
           :cross_type => 'back',
           :use_all_contigs => false,
-          :filter_out_low_hmes => true,
+          :include_low_hmes => false,
           :polyploidy => false,
           :bfr_adjust => 0.05,
           :sel_seq_len => 50

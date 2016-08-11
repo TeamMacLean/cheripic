@@ -121,7 +121,7 @@ module Cheripic
     # Applies selection procedure on assembly contigs based on the ratio_type provided.
     # If use_all_contigs is set to false then contigs without any variant are discarded for :hme_score
     # while contigs without any hemisnps are discarded for :bfr_score
-    # If filter_out_low_hmes is set to true then contigs are further filtered based on a cut off value of the score
+    # If include_low_hmes is set to false then contigs are further filtered based on a cut off value of the score
     # @param ratio_type [Symbol] ratio_type is either :hme_score or :bfr_score
     def select_contigs(ratio_type)
       selected_contigs ={}
@@ -171,11 +171,13 @@ module Cheripic
     # @param ratio_type [Symbol] ratio_type is either :hme_score or :bfr_score
     # @param selected_contigs [Hash] a hash of contigs with selected ratio_type, a subset of assembly hash
     def get_cutoff(selected_contigs, ratio_type)
-      filter_out_low_hmes = Options.filter_out_low_hmes
+      include_low_hmes = Options.include_low_hmes
       # set minimum cut off hme_score or bfr_score to pick fragments with variants
       # calculate min hme score for back or out crossed data or bfr_score for polypoidy data
       # if no filtering applied set cutoff to 1.1
-      if filter_out_low_hmes
+      if include_low_hmes
+        cutoff = 0.0
+      else
         if ratio_type == :hme_score
           adjust = Options.hmes_adjust
           if Options.cross_type == 'back'
@@ -186,8 +188,6 @@ module Cheripic
         else # ratio_type is bfr_score
           cutoff = bfr_cutoff(selected_contigs)
         end
-      else
-        cutoff = 0.0
       end
       cutoff
     end
