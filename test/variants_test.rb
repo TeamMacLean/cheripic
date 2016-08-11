@@ -74,7 +74,7 @@ class VariantsTest < Minitest::Test
 
     should 'select all contigs with vars' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3}
---no-only-frag-with-vars --output test/cheripic_results".split)
+--use-all-contigs true --output test/cheripic_results".split)
       Cheripic::Implementer.new(testcmd.options)
       variants = Cheripic::Variants.new(testcmd.options)
       variants.compare_pileups
@@ -84,7 +84,7 @@ class VariantsTest < Minitest::Test
 
     should 'select all contigs' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4}
---bg-parent #{@file5} --polyploidy true --no-only-frag-with-vars --no-filter-out-low-hmes --output test/cheripic_results".split)
+--bg-parent #{@file5} --polyploidy true --use-all-contigs true --no-filter-out-low-hmes --output test/cheripic_results".split)
       Cheripic::Implementer.new(testcmd.options)
       variants = Cheripic::Variants.new(testcmd.options)
       variants.compare_pileups
@@ -94,7 +94,7 @@ class VariantsTest < Minitest::Test
 
     should 'get variants' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4}
---bg-parent #{@file5} --polyploidy true --no-only-frag-with-vars --no-filter-out-low-hmes --output test/cheripic_results".split)
+--bg-parent #{@file5} --polyploidy true --use-all-contigs true --no-filter-out-low-hmes --output test/cheripic_results".split)
       implement = Cheripic::Implementer.new(testcmd.options)
       implement.extract_vars
       implement.process_variants

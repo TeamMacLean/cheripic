@@ -119,15 +119,17 @@ module Cheripic
     end
 
     # Applies selection procedure on assembly contigs based on the ratio_type provided.
-    # If only_frag_with_vars is set to true then contigs without any variant are discarded for :hme_score
+    # If use_all_contigs is set to false then contigs without any variant are discarded for :hme_score
     # while contigs without any hemisnps are discarded for :bfr_score
     # If filter_out_low_hmes is set to true then contigs are further filtered based on a cut off value of the score
     # @param ratio_type [Symbol] ratio_type is either :hme_score or :bfr_score
     def select_contigs(ratio_type)
       selected_contigs ={}
-      only_frag_with_vars = Options.only_frag_with_vars
+      use_all_contigs = Options.use_all_contigs
       @assembly.each_key do | frag |
-        if only_frag_with_vars
+        if use_all_contigs
+          selected_contigs[frag] = @assembly[frag]
+        else
           if ratio_type == :hme_score
             # selecting fragments which have a variant
             if @assembly[frag].hm_num + @assembly[frag].ht_num > 2 * Options.hmes_adjust
@@ -139,15 +141,13 @@ module Cheripic
               selected_contigs[frag] = @assembly[frag]
             end
           end
-        else
-          selected_contigs[frag] = @assembly[frag]
         end
       end
       selected_contigs = filter_contigs(selected_contigs, ratio_type)
-      if only_frag_with_vars
-        logger.info "Selected #{selected_contigs.length} out of #{@assembly.length} fragments with #{ratio_type} score\n"
-      else
+      if use_all_contigs
         logger.info "No filtering was applied to fragments\n"
+      else
+        logger.info "Selected #{selected_contigs.length} out of #{@assembly.length} fragments with #{ratio_type} score\n"
       end
       selected_contigs
     end

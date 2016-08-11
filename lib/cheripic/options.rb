@@ -19,7 +19,7 @@ module Cheripic
         :base_quality => 15,
         :noise => 0.1,
         :cross_type => 'back',
-        :only_frag_with_vars => true,
+        :use_all_contigs => false,
         :filter_out_low_hmes => true,
         :polyploidy => false,
         :bfr_adjust => 0.05,
@@ -99,8 +99,8 @@ module Cheripic
 
     # Option to whether to ignore or consider the contigs with out any variants
     # @return [Boolean]
-    def self.only_frag_with_vars
-      @user_settings[:only_frag_with_vars]
+    def self.use_all_contigs
+      @user_settings[:use_all_contigs]
     end
 
     # Option to whether to ignore or consider the contigs with low HME score

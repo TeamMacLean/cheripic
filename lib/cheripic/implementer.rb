@@ -41,7 +41,7 @@ module Cheripic
                 base_quality
                 noise
                 cross_type
-                only_frag_with_vars
+                use_all_contigs
                 filter_out_low_hmes
                 polyploidy
                 bfr_adjust}

@@ -94,9 +94,9 @@ module Cheripic
         opt :cross_type, 'type of cross used to generated mapping population - back or out',
             :type => String,
             :default => 'back'
-        opt :only_frag_with_vars, 'select only contigs containing variants for analysis',
+        opt :use_all_contigs, 'option to select all contigs or only contigs containing variants for analysis',
             :type => FalseClass,
-            :default => true
+            :default => false
         opt :filter_out_low_hmes, 'ignore variants from contigs with low hmescore or bfr to list in the final output',
             :type => FalseClass,
             :default => true
