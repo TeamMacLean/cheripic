@@ -114,6 +114,9 @@ module Cheripic
         opt :bfr_adjust, 'factor added to hemi snp frequency of each parent to adjust for bfr calculations',
             :type => Float,
             :default => 0.05
+        opt :sel_seq_len, 'sequence length to print from either side of selected variants',
+            :type => Integer,
+            :default => 50
         opt :examples, 'shows some example commands with explanation'
       end
     end
