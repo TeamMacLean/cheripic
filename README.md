@@ -21,7 +21,7 @@ Binaries are available for Linux 64bit and OSX.
 Best way to use Cheripic is to download appropriate binary arhcive      
 unpack (`tar -xzf`) and add the unpacked directory to your `PATH`       
 
-Latest binaries are available to [download here](https://github.com/shyamrallapalli/cheripic/releases/tag/v1.1.0)       
+Latest binaries are available to [download here](https://github.com/shyamrallapalli/cheripic/releases/latest)       
 
 
 To install gem and use the gem in your development     
