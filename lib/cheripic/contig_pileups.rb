@@ -131,12 +131,14 @@ module Cheripic
     # @return [Symbol] variant mode of the background bulk (:hom or :het) at the position
     def bg_bulk_var(pos)
       bg_base_hash = @bg_bulk[pos].var_base_frac
+      bg_base_hash.delete(:ref)
+      return nil if bg_base_hash.empty?
       if bg_base_hash.length > 1
         # taking only var mode
         var_mode(bg_base_hash.values.max)
       else
         # taking only var mode
-        var_mode(bg_base_hash[0])
+        var_mode(bg_base_hash[bg_base_hash.keys[0]])
       end
     end
 
