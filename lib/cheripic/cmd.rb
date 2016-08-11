@@ -77,9 +77,9 @@ module Cheripic
         opt :min_indel_count_support, 'minimum read depth supporting an indel at each position',
             :type => Integer,
             :default => 3
-        opt :ignore_reference_n, 'ignore variant calls at N (completely ambigous) bases in the reference',
+        opt :ambiguous_ref_bases, 'including variant at completely ambiguous bases in the reference',
             :type => FalseClass,
-            :default => true
+            :default => false
         opt :mapping_quality, 'minimum mapping quality of read covering the position',
             :short => '-q',
             :type => Integer,

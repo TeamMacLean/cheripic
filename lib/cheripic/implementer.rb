@@ -36,7 +36,7 @@ module Cheripic
                 mindepth
                 min_non_ref_count
                 min_indel_count_support
-                ignore_reference_n
+                ambiguous_ref_bases
                 mapping_quality
                 base_quality
                 noise

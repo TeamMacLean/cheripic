@@ -14,7 +14,7 @@ module Cheripic
         :mindepth => 6,
         :min_non_ref_count => 3,
         :min_indel_count_support => 3,
-        :ignore_reference_n => true,
+        :ambiguous_ref_bases => false,
         :mapping_quality => 20,
         :base_quality => 15,
         :noise => 0.1,
@@ -66,9 +66,10 @@ module Cheripic
     end
 
     # Option to whether to ignore or consider the reference positions which are ambiguous
+    # @note switching option name here so Pileup options are same
     # @return [Boolean]
     def self.ignore_reference_n
-      @user_settings[:ignore_reference_n]
+      @user_settings[:ambiguous_ref_bases] ? false : true
     end
 
     # Minimum alignment mapping quality of the read to be used for bam files
