@@ -1,0 +1,180 @@
+<tool id="cheripic" name="CHERIPIC" version="1.2.0">
+
+  <description>CHERIPIC, is a ruby tools to pick causative mutation from bulks segregant sequencing</description>
+
+  <version_command>cheripic -v</version_command>
+
+  <command>
+    cheripic
+    --assembly $assembly
+    --mut-bulk $mut_bulk
+    --bg-bulk $bg_bulk
+    --output $output
+    --loglevel $loglevel
+    --hmes-adjust $hmes_adjust
+    --htlow $ht_low
+    --hthigh $ht_high
+    --mindepth $min_depth
+    --min-non-ref-count $min_non_ref_count
+    --min-indel-count-support $min_indel_count_support
+    --ambiguous-ref-bases $ambiguous_ref_bases
+    --mapping-quality $mapping_quality
+    --base-quality $base_quality
+    --noise $noise
+    --cross-type $cross_type
+    --use-all-contigs $use_all_contigs
+    --include-low-hmes $include_low_hmes
+    --polyploidy $polyploidy
+    --mut-parent $mut_parent
+    --bg-parent $bg_parent
+    --bfr-adjust $bfr_adjust
+    --sel-seq-len $sel_seq_len
+  </command>
+
+  <inputs>
+    <param name="assembly" type="data" format="fasta" label="Input Assembly file" help="Select Assembly fasta file" />
+    <param name="mut_bulk" type="data" format="pileup" label="mutant bulk pileup file" help="Select mutant bulk pileup file" />
+    <param name="bg_bulk" type="data" format="pileup" label="background bulk pileup file" min="1" multiple="true" help="Select background bulk pileup file" />
+    <param name="loglevel" type="select" optional="true" value="info" label="analysis log level" help="choose between info, warn and debug levels">
+      <option value="info">info</option>
+      <option value="warn">warnings</option>
+      <option value="debug">debug</option>
+    </param>
+    <param name="hmes_adjust" size="4" type="float" optional="true" value="0.5" min="0.01" max="1.0"
+           label="hme score adjuster" help="factor added to snp count of each contig to adjust for hme score calculations" />
+    <param name="ht_low" size="4"  type="float" optional="true" value="0.25" min="0.1" max="1.0"
+           label="heterozygosity low limit" help="lower limit to heterozygosity allele fraction" />
+    <param name="ht_high" size="4" type="float" optional="true" value="0.75" min="0.1" max="1.0"
+           label="heterozygosity high limit" help="upper limit to heterozygosity allele fraction" />
+    <param name="min_depth" size="4" type="integer" optional="true" value="6" min="1" max="8000"
+           label="minimum read coverage" help="minimum read depth to conisder a position for variant calls" />
+    <param name="min_non_ref_count" size="4" type="integer" optional="true" value="3" min="1" max="8000"
+           label="minimum alternate read coverage" help="minimum read depth supporting non reference base at each position" />
+    <param name="min_indel_count_support" size="4" type="integer" optional="true" value="3" min="1" max="8000"
+           label="minimum indel read coverage" help="minimum read depth supporting an indel at each position" />
+    <param name="ambiguous_ref_bases" type="boolean" optional="true" checked="false" label="ambiguous reference position"
+            help="including variant at completely ambiguous bases in the reference" truevalue="true" falsevalue="false" />
+    <param name="mapping_quality" size="4" type="integer" optional="true" value="20" min="0" max="255"
+           label="minimum mapping quality" help="minimum mapping quality of read covering the position" />
+    <param name="base_quality" size="4" type="integer" optional="true" value="15" min="0" max="40"
+           label="minimum base quality" help="minimum base quality of nucleotides covering the position" />
+    <param name="noise" size="4" type="float" optional="true" value="0.1" min="0" max="0.2"
+           label="read noise" help="proportion of reads supporting a variant, below which are consider as noise" />
+    <param name="cross_type" type="select" optional="true" value="back" label="cross type" help="type of cross used to generated mapping population - back or out" >
+      <option value="back">back cross</option>
+      <option value="out">out cross</option>
+    </param>
+
+    <param name="use_all_contigs" type="boolean" optional="true" checked="false" label="use all contigs in analysis"
+           help="option to select all contigs or only contigs containing variants for analysis" truevalue="true" falsevalue="false" />
+    <param name="include_low_hmes" type="boolean" optional="true" checked="false" label="no hme or bfr score cut off"
+           help="option to include or discard variants from contigs with low hme-score or bfr score to list in the final output" truevalue="true" falsevalue="false" />
+    <param name="polyploidy" type="boolean" optional="true" checked="false" label="polyploid data"
+           help="Set if the input data is from polyploids" truevalue="true" falsevalue="false" />
+    <param name="mut-parent" type="data" optional="true" format="pileup" label="mutant parent pileup file" help="Select mutant parent pileup file" />
+    <param name="bg-parent" type="data" optional="true" format="pileup" label="background parent pileup file" help="Select background parent pileup file" />
+
+    <param name="bfr_adjust" size="4" type="float" optional="true" value="0.05" min="0.01" max="1.0"
+           label="bfr score adjuster" help="factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)" />
+    <param name="sel_seq_len" size="4" type="integer" optional="true" value="50" min="10" max="250"
+           label="selected variant seq length out" help="sequence length to print from either side of selected variants (default: 50)" />
+
+    <param name="output" type="text" size="30" value="cheripic_results" label="tag for output filename" help="write a tag to include with output filename" />
+  </inputs>
+
+  <outputs>
+    <data name="output" format="txt" />
+  </outputs>
+
+  <tests>
+  </tests>
+
+  <help>
+
+    **Computing Homozygosity Enriched Regions In genomes to Prioritize Identification of Candidate variants (CHERIPIC)**
+
+    ------
+
+    **What it does**
+
+    This tool uses ``cheripic`` tool to analyse bulk segregant sequencing to identify causative muation
+
+
+    .. class:: infomark
+
+    Provides a list of snps that could either closely linked markers or the causative mutation.
+
+    ------
+
+    **Input formats**
+
+    assembly file should be a fasta file used for generating pileups from bulks
+    bulk alignment files should be pileup files
+
+    ------
+
+    **Outputs**
+
+    The output is a text file, and has the following columns::
+
+    Column              Description
+    -----------------   --------------------------------------------------------
+    1  HME_Score        Homozygosity Enrichment score
+    2  AlleleFreq       Allele frequency
+    3  seq_id           Contig/Scaffold id
+    4  position         1-based index of the position in contig
+    5  ref_base         Reference nucleotide at the position
+    6  coverage         read depth
+    7  bases            read bases
+    8  base_quals       read base qualities
+    9  sequence_left    selected size of reference sequence on the left variant
+    10 Alt_seq          Alternate allele at the position
+    11 sequence_right   selected size of reference sequence on the right variant
+
+    ------
+
+    **cheripic settings**
+
+    All of the options have a default value. You can change any of them. All of the options are implemented.
+
+    ------
+
+    **cheripic parameter list**
+
+    OPTIONS:
+    -f, --assembly               Assembly file in FASTA format
+    -F, --input-format           bulk and parent alignment file format types - set either pileup or bam (default: pileup)
+    -a, --mut-bulk               Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1
+    -b, --bg-bulk                Pileup or sorted BAM file alignments from background/wildtype bulk 2
+    --output                     Directory to store results, will be created if not existing (default: cheripic_results)
+    --loglevel                   Choose any one of "info / warn / debug" level for logs generated (default: debug)
+    --hmes-adjust                factor added to snp count of each contig to adjust for hme score calculations (default: 0.5)
+    --htlow                      lower level for categorizing heterozygosity (default: 0.2)
+    --hthigh                     high level for categorizing heterozygosity (default: 0.9)
+    --mindepth                   minimum read depth to conisder a position for variant calls (default: 6)
+    --min-non-ref-count          minimum read depth supporting non reference base at each position (default: 3)
+    --min-indel-count-support    minimum read depth supporting an indel at each position (default: 3)
+    --ambiguous-ref-bases        including variant at completely ambiguous bases in the reference
+    -q, --mapping-quality        minimum mapping quality of read covering the position (default: 20)
+    -Q, --base-quality           minimum base quality of bases covering the position (default: 15)
+    --noise                      praportion of reads for a variant to conisder as noise (default: 0.1)
+    --cross-type                 type of cross used to generated mapping population - back or out (default: back)
+    --use-all-contigs            option to select all contigs or only contigs containing variants for analysis
+    --include-low-hmes           option to include or discard variants from contigs with low hme-score or bfr score to list in the final output
+    --polyploidy                 Set if the data input is from polyploids
+    -p, --mut-parent             Pileup or sorted BAM file alignments from mutant/trait of interest parent (default: )
+    -r, --bg-parent              Pileup or sorted BAM file alignments from background/wildtype parent (default: )
+    --bfr-adjust                 factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)
+    --sel-seq-len                sequence length to print from either side of selected variants (default: 50)
+
+    ------
+
+    .. class:: infomark
+
+    **Tool Author**
+
+    Shyam Rallapalli
+
+  </help>
+
+</tool>
