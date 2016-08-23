@@ -11,7 +11,7 @@ class VariantsTest < Minitest::Test
       @file4 = File.join(File.dirname(__FILE__), 'data', 'mut_parent.pileup')
       @file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
 
-      @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --polyploidy true --output test/cheripic_results".split)
+      @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --polyploidy true --output cheripic_results".split)
       @options = @testcmd.options
       Cheripic::Implementer.new(@options)
       @variants = Cheripic::Variants.new(@options)
@@ -56,7 +56,7 @@ class VariantsTest < Minitest::Test
 
     should 'fail on empty sequence' do
       file1 = File.join(File.dirname(__FILE__), 'data', 'empty_seq.fa')
-      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --output test/cheripic_results".split)
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --output cheripic_results".split)
       options = testcmd.options
       assert_raises Cheripic::VariantsError do
         Cheripic::Variants.new(options)
@@ -65,7 +65,7 @@ class VariantsTest < Minitest::Test
 
     should 'fail on duplicate fasta ids' do
       file1 = File.join(File.dirname(__FILE__), 'data', 'dup_names.fa')
-      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --output test/cheripic_results".split)
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --output cheripic_results".split)
       options = testcmd.options
       assert_raises Cheripic::VariantsError do
         Cheripic::Variants.new(options)
@@ -74,7 +74,7 @@ class VariantsTest < Minitest::Test
 
     should 'select all contigs with vars' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3}
---use-all-contigs true --output test/cheripic_results".split)
+--use-all-contigs true --output cheripic_results".split)
       Cheripic::Implementer.new(testcmd.options)
       variants = Cheripic::Variants.new(testcmd.options)
       variants.compare_pileups
@@ -84,7 +84,7 @@ class VariantsTest < Minitest::Test
 
     should 'select all contigs' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4}
---bg-parent #{@file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output test/cheripic_results".split)
+--bg-parent #{@file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output cheripic_results".split)
       Cheripic::Implementer.new(testcmd.options)
       variants = Cheripic::Variants.new(testcmd.options)
       variants.compare_pileups
@@ -94,11 +94,11 @@ class VariantsTest < Minitest::Test
 
     should 'get variants' do
       testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4}
---bg-parent #{@file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output test/cheripic_results".split)
+--bg-parent #{@file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output cheripic_results".split)
       implement = Cheripic::Implementer.new(testcmd.options)
       implement.extract_vars
       implement.process_variants
-      filename = "#{testcmd.options[:output]}/selected_variants.txt"
+      filename = "#{testcmd.options[:output]}"
       selected =  Hash.new { |h,k| h[k] = {} }
       File.open(filename, 'r').each do |line|
         info = line.split(/\t/)

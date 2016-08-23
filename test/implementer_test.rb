@@ -11,7 +11,7 @@ class ImplementerTest < Minitest::Test
       file4 = File.join(File.dirname(__FILE__), 'data', 'mut_parent.pileup')
       file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
       testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{file2} --bg-bulk #{file3} --mut-parent #{file4}
---bg-parent #{file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output test/cheripic_results".split)
+--bg-parent #{file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output cheripic_results".split)
       @options = testcmd.options
     end
 

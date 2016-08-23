@@ -47,7 +47,6 @@ module Cheripic
                 bfr_adjust}
       settings = inputs.select { |k| set2.include?(k) }
       Options.update(settings)
-      FileUtils.mkdir_p @options.output
       @vars_extracted = false
       @has_run = false
     end
@@ -65,7 +64,7 @@ module Cheripic
     def process_variants
       @variants.verify_bg_bulk_pileup
       # print selected variants that could be potential markers or mutation
-      out_file = File.open("#{@options.output}/selected_variants.txt", 'w')
+      out_file = File.open(@options.output, 'w')
       out_file.puts "HME_Score\tAlleleFreq\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
       regions = Regions.new(@options.assembly)
       @variants.hmes_frags.each_key do | frag |

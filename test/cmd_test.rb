@@ -13,8 +13,14 @@ class CmdTest < Minitest::Test
       delete_outdir
     end
 
-    should 'fail if output directory is present' do
-      Dir.mkdir('test/cheripic_results')
+    should 'fail if output file is present' do
+      File.write('cheripic_results_selected_variants.txt', '')
+      assert_raises Cheripic::CheripicArgError do
+        Cheripic::Cmd.new('--output cheripic_results'.split)
+      end
+    end
+
+    should 'fail if output file has unaccepted characters' do
       assert_raises Cheripic::CheripicArgError do
         Cheripic::Cmd.new('--output test/cheripic_results'.split)
       end
@@ -78,7 +84,7 @@ class CmdTest < Minitest::Test
       file1 = File.join(File.dirname(__FILE__), 'data', 'picked_fasta.fa')
       file2 = File.join(File.dirname(__FILE__), 'data', 'mut_bulk.pileup')
       file3 = File.join(File.dirname(__FILE__), 'data', 'wt_bulk.pileup')
-      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{file2} --bg-bulk #{file3} --output test/cheripic_results".split)
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{file2} --bg-bulk #{file3} --output cheripic_results".split)
       assert_equal(true, testcmd.run)
     end
 

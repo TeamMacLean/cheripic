@@ -55,7 +55,7 @@ module Cheripic
         opt :bg_bulk, 'Pileup or sorted BAM file alignments from background/wildtype bulk 2',
             :short => '-b',
             :type => String
-        opt :output, 'Directory to store results, will be created if not existing',
+        opt :output, 'custom name tag to include in the output file name',
             :default => 'cheripic_results'
         opt :loglevel, 'Choose any one of "info / warn / debug" level for logs generated',
             :default => 'debug'
@@ -165,7 +165,7 @@ module Cheripic
 
     # calls other methods to check if command line inputs are valid
     def check_arguments
-      check_output_dir
+      check_output
       check_log_level
       check_input_files
     end
@@ -198,11 +198,16 @@ module Cheripic
       end
     end
 
-    # checks if output directory already exists
-    def check_output_dir
-      if Dir.exist?(@options[:output])
-        raise CheripicArgError.new "#{@options[:output]} directory exists" +
-                                       'please choose a different output directory name'
+    # checks if files with output tag name already exists
+    def check_output
+      @options[:output] = "#{@options[:output]}_selected_variants.txt"
+      file = @options[:output]
+      if (file.split('') & %w{# / : * ? ' < > | & $ ,}).any?
+        raise CheripicArgError.new 'please choose a name tag that contains ' +
+                                       'alphanumeric characters, hyphen(-) and underscore(_) only'
+      elsif File.exist?(file)
+        raise CheripicArgError.new "#{file} file exists " +
+                                       'please choose a different name tag to be included in the output file name'
       end
     end
 

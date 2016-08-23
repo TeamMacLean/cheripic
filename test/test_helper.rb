@@ -24,4 +24,7 @@ def delete_outdir
     end
     Dir.rmdir('test/cheripic_results')
   end
+  if File.exist?('cheripic_results_selected_variants.txt')
+    File.delete('cheripic_results_selected_variants.txt')
+  end
 end
