@@ -200,14 +200,17 @@ module Cheripic
 
     # checks if files with output tag name already exists
     def check_output
-      @options[:output] = "#{@options[:output]}_selected_variants.txt"
-      file = @options[:output]
-      if (file.split('') & %w{# / : * ? ' < > | & $ ,}).any?
+      if (@options[:output].split('') & %w{# / : * ? ' < > | & $ ,}).any?
         raise CheripicArgError.new 'please choose a name tag that contains ' +
                                        'alphanumeric characters, hyphen(-) and underscore(_) only'
-      elsif File.exist?(file)
-        raise CheripicArgError.new "#{file} file exists " +
-                                       'please choose a different name tag to be included in the output file name'
+      end
+      @options[:hmes_frags] = "#{@options[:output]}_selected_hme_variants.txt"
+      @options[:bfr_frags] = "#{@options[:output]}_selected_bfr_variants.txt"
+      [@options[:hmes_frags], @options[:bfr_frags]].each do | file |
+        if File.exist?(file)
+          raise CheripicArgError.new "'#{file}' file exists " +
+                                         'please choose a different name tag to be included in the output file name'
+        end
       end
     end
 
@@ -225,7 +228,8 @@ module Cheripic
     # A hash of trollop option names as keys and user or default
     # setting as values is passed to Implementer object
     def run
-      @options[:output] = File.expand_path @options[:output]
+      @options[:hmes_frags] = File.expand_path @options[:hmes_frags]
+      @options[:bfr_frags] = File.expand_path @options[:bfr_frags]
       analysis = Implementer.new(@options)
       analysis.run
     end

@@ -25,7 +25,8 @@ module Cheripic
                 input_format
                 mut_bulk
                 bg_bulk
-                output
+                hmes_frags
+                bfr_frags
                 mut_parent
                 bg_parent}
       @options = OpenStruct.new(inputs.select { |k| set1.include?(k) })
@@ -61,15 +62,21 @@ module Cheripic
 
     # Extracted variants from bulk comparison are re-analysed
     # and selected variants are written to a file
-    def process_variants
-      @variants.verify_bg_bulk_pileup
+    def process_variants(pos_type)
+      if pos_type == :hmes_frags
+        @variants.verify_bg_bulk_pileup
+      end
       # print selected variants that could be potential markers or mutation
-      out_file = File.open(@options.output, 'w')
-      out_file.puts "HME_Score\tAlleleFreq\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
+      out_file = File.open(@options[pos_type], 'w')
+      out_file.puts "Score\tAlleleFreq\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
       regions = Regions.new(@options.assembly)
-      @variants.hmes_frags.each_key do | frag |
+      @variants.send(pos_type).each_key do | frag |
         contig_obj = @variants.assembly[frag]
-        positions = contig_obj.hm_pos.keys
+        if pos_type == :hmes_frags
+          positions = contig_obj.hm_pos.keys
+        else
+          positions = contig_obj.hemi_pos.keys
+        end
         positions.each do | pos |
           pileup = @variants.pileups[frag].mut_bulk[pos]
           seqs = regions.fetch_seq(frag,pos)
@@ -86,11 +93,9 @@ module Cheripic
       unless @vars_extracted
         self.extract_vars
       end
+      self.process_variants(:hmes_frags)
       if Options.polyploidy
-        self.process_variants
-        @variants.bfr_frags
-      else
-        self.process_variants
+        self.process_variants(:bfr_frags)
       end
       @has_run = true
     end

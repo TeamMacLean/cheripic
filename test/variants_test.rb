@@ -97,12 +97,12 @@ class VariantsTest < Minitest::Test
 --bg-parent #{@file5} --polyploidy true --use-all-contigs true --include-low-hmes true --output cheripic_results".split)
       implement = Cheripic::Implementer.new(testcmd.options)
       implement.extract_vars
-      implement.process_variants
-      filename = "#{testcmd.options[:output]}"
+      implement.process_variants(:hmes_frags)
+      filename = "#{testcmd.options[:hmes_frags]}"
       selected =  Hash.new { |h,k| h[k] = {} }
       File.open(filename, 'r').each do |line|
         info = line.split(/\t/)
-        next if info[0] == 'HME_Score'
+        next if info[0] == 'Score'
         selected[info[2]][info[3].to_i] = 1
       end
       expected = { 'CL22874Contig1' => { 332 => 1, 369 => 1, 370 => 1, 390 => 1, 396 => 1, 398 => 1, 424 => 1},

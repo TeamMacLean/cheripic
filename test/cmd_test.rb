@@ -14,7 +14,7 @@ class CmdTest < Minitest::Test
     end
 
     should 'fail if output file is present' do
-      File.write('cheripic_results_selected_variants.txt', '')
+      File.write('cheripic_results_selected_hme_variants.txt', '')
       assert_raises Cheripic::CheripicArgError do
         Cheripic::Cmd.new('--output cheripic_results'.split)
       end

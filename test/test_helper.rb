@@ -18,13 +18,10 @@ Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 require 'shoulda/context'
 
 def delete_outdir
-  if Dir.exist?('test/cheripic_results')
-    if File.exist?('test/cheripic_results/selected_variants.txt')
-      File.delete('test/cheripic_results/selected_variants.txt')
-    end
-    Dir.rmdir('test/cheripic_results')
+  if File.exist?('cheripic_results_selected_hme_variants.txt')
+    File.delete('cheripic_results_selected_hme_variants.txt')
   end
-  if File.exist?('cheripic_results_selected_variants.txt')
-    File.delete('cheripic_results_selected_variants.txt')
+  if File.exist?('cheripic_results_selected_bfr_variants.txt')
+    File.delete('cheripic_results_selected_bfr_variants.txt')
   end
 end
