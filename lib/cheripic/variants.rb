@@ -55,18 +55,15 @@ module Cheripic
     # Reads and store pileup data for each of input bulk and parents pileup files
     # And sets pileups_analyzed to true that pileups files are processed
     def analyse_pileups
-      if @params.input_format == 'pileup'
-        %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
-          infile = @params[input]
-          if infile != ''
-            extract_pileup(infile, input)
-          end
-        end
-      else
+      if @params.input_format == 'bam'
         @vcf_hash = Vcf.filtering(@params.mut_bulk_vcf, @params.bg_bulk_vcf)
-        %i{mut_bulk bg_bulk}.each do | input |
-          infile = @params[input]
-          if infile != ''
+      end
+      %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
+        infile = @params[input]
+        if infile != ''
+          if @params.input_format == 'pileup'
+            extract_pileup(infile, input)
+          else
             extract_bam_pileup(infile, input)
           end
         end
