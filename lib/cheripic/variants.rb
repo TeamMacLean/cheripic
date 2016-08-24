@@ -30,7 +30,7 @@ module Cheripic
     attr_reader :assembly, :pileups, :hmes_frags, :bfr_frags, :pileups_analyzed
 
     # creates a Variants object using user input files
-    # @param options [Hash] a hash of required input files as keys and file paths as values
+    # @param options [OpenStruct] a hash of required input files as keys and file paths as values
     def initialize(options)
       @params = options
       @assembly = {}
@@ -55,14 +55,20 @@ module Cheripic
     # Reads and store pileup data for each of input bulk and parents pileup files
     # And sets pileups_analyzed to true that pileups files are processed
     def analyse_pileups
-      @bg_bulk = @params.bg_bulk
-      @mut_parent = @params.mut_parent
-      @bg_parent = @params.bg_parent
-
-      %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
-        infile = @params[input]
-        if infile != ''
-          extract_pileup(infile, input)
+      if @params.input_format == 'pileup'
+        %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
+          infile = @params[input]
+          if infile != ''
+            extract_pileup(infile, input)
+          end
+        end
+      else
+        @vcf_hash = Vcf.filtering(@params.mut_bulk_vcf, @params.bg_bulk_vcf)
+        %i{mut_bulk bg_bulk}.each do | input |
+          infile = @params[input]
+          if infile != ''
+            extract_bam_pileup(infile, input)
+          end
         end
       end
 
@@ -84,6 +90,34 @@ module Cheripic
       end
     end
 
+    # Input bamfile is read and selected positions pileups are stored
+    # @param bamfile [String] path to the bam file to read
+    # @param sym [Symbol] Symbol of the bam file used to write selected variants
+    # pileup information to respective ContigPileups object
+    def extract_bam_pileup(bamfile, sym)
+      bq = Options.base_quality
+      mq = Options.mapping_quality
+      bamobject = Bio::DB::Sam.new(:bam=>bamfile, :fasta=>@params.assembly)
+      unless bamobject.indexed?
+        bamobject.index
+      end
+
+      @vcf_hash.each_key do | id |
+        positions = @vcf_hash[id][:het].keys
+        positions << @vcf_hash[id][:hom].keys
+        contig_obj = @pileups[id]
+        positions.each do | pos |
+          pileuparray = []
+          bamobject.mpileup(:r => "#{id}:#{pos}-#{pos}", :Q => bq, :q => mq) do | pileup |
+            pileuparray << pileup
+          end
+          # pileups not matching set mapping quality or 'N'
+          next if pileuparray.empty?
+          contig_obj.send(sym).store(pos, pileuparray[0])
+        end
+      end
+    end
+
     # Once pileup files are analysed and variants are extracted from each bulk;
     # bulks are compared to identify and isolate variants for downstream analysis.
     # If polyploidy set to trye and mut_parent and bg_parent bulks are provided
@@ -96,7 +130,7 @@ module Cheripic
         contig = @assembly[id]
         # extract parental hemi snps for polyploids before bulks are compared
         if Options.polyploidy
-          if @mut_parent != '' or @bg_parent != ''
+          if @params.mut_parent != '' or @params.bg_parent != ''
             @pileups[id].hemisnps_in_parent
           end
         end
