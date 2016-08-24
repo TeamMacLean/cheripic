@@ -25,6 +25,8 @@ module Cheripic
                 input_format
                 mut_bulk
                 bg_bulk
+                mut_bulk_vcf
+                bg_bulk_vcf
                 hmes_frags
                 bfr_frags
                 mut_parent

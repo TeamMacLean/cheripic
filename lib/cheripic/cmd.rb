@@ -52,8 +52,12 @@ module Cheripic
         opt :mut_bulk, 'Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1',
             :short => '-a',
             :type => String
+        opt :mut_bulk_vcf, 'vcf file for variants from mutant/trait of interest bulk 1',
+            :type => String
         opt :bg_bulk, 'Pileup or sorted BAM file alignments from background/wildtype bulk 2',
             :short => '-b',
+            :type => String
+        opt :bg_bulk_vcf, 'vcf file for variants from background/wildtype bulk 2',
             :type => String
         opt :output, 'custom name tag to include in the output file name',
             :default => 'cheripic_results'
@@ -133,8 +137,10 @@ module Cheripic
 
       Inputs:
       1. Needs a reference fasta file of asssembly use for variant analysis
-      2. Pileup files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
-      3. If polyploid species, include of pileup from one or both parents
+      2. Pileup/Bam files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
+      3. Needs bulk pileup files for polyploid data, either pileup or bam files for diploid data
+      4. If providing bam files, you have to include vcf files for the respective bulks
+      5. If polyploid species, include of pileup from one or both parents
 
       USAGE:
       cheripic <options>
@@ -165,25 +171,32 @@ module Cheripic
 
     # calls other methods to check if command line inputs are valid
     def check_arguments
+      check_input_types
       check_output
       check_log_level
-      check_input_files
     end
 
-    # TODO: check bulk input types and process associated files
-    # def check_input_types
-    #   if @options[:input_format] == 'vcf'
-    #
-    #   end
-    # end
+    # checks input files based on bulk file type
+    def check_input_types
+      if @options[:input_format] == 'bam'
+        if @options[:polyploidy]
+          raise CheripicArgError.new 'Use pileup files for polyploid data, pileup or bam files for diploid data ' +
+                                         'Try --help for help.'
+        else
+          inputfiles = %i{assembly mut_bulk bg_bulk mut_bulk_vcf bg_bulk_vcf}
+        end
+      else # @options[:input_format] == 'pileup'
+        if @options[:polyploidy]
+          inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
+        else
+          inputfiles = %i{assembly mut_bulk bg_bulk}
+        end
+      end
+      check_input_files(inputfiles)
+    end
 
     # checks if input files are valid
-    def check_input_files
-      if @options[:polyploidy]
-        inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
-      else
-        inputfiles = %i{assembly mut_bulk bg_bulk}
-      end
+    def check_input_files(inputfiles)
       inputfiles.each do | symbol |
         if @options[symbol]
           file = @options[symbol]
