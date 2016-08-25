@@ -138,9 +138,8 @@ module Cheripic
       Inputs:
       1. Needs a reference fasta file of asssembly use for variant analysis
       2. Pileup/Bam files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
-      3. Needs bulk pileup files for polyploid data, either pileup or bam files for diploid data
-      4. If providing bam files, you have to include vcf files for the respective bulks
-      5. If polyploid species, include of pileup from one or both parents
+      3. If providing bam files, you have to include vcf files for the respective bulks
+      4. If polyploid species, include pileup/bam files from one or both parents
 
       USAGE:
       cheripic <options>
@@ -178,35 +177,41 @@ module Cheripic
 
     # checks input files based on bulk file type
     def check_input_types
+      inputfiles = {}
+      inputfiles[:required] = %i{assembly mut_bulk}
+      inputfiles[:optional] = %i{bg_bulk}
       if @options[:input_format] == 'bam'
-        if @options[:polyploidy]
-          raise CheripicArgError.new 'Use pileup files for polyploid data, pileup or bam files for diploid data ' +
-                                         'Try --help for help.'
-        else
-          inputfiles = %i{assembly mut_bulk bg_bulk mut_bulk_vcf bg_bulk_vcf}
-        end
-      else # @options[:input_format] == 'pileup'
-        if @options[:polyploidy]
-          inputfiles = %i{assembly mut_bulk bg_bulk mut_parent bg_parent}
-        else
-          inputfiles = %i{assembly mut_bulk bg_bulk}
-        end
+        inputfiles[:required] << %i{mut_bulk_vcf}
+        inputfiles[:optional] << %i{bg_bulk_vcf}
+      end
+      if @options[:polyploidy]
+        inputfiles[:either] = %i{mut_parent bg_parent}
       end
       check_input_files(inputfiles)
     end
 
     # checks if input files are valid
     def check_input_files(inputfiles)
-      inputfiles.each do | symbol |
-        if @options[symbol]
-          file = @options[symbol]
-          @options[symbol] = File.expand_path(file)
-          unless File.exist?(file)
-            raise CheripicIOError.new "#{symbol} file, #{file} does not exist: "
+      check = 0
+      inputfiles.each_key do | type |
+        inputfiles[type].each do | symbol |
+          if @options[symbol]
+            file = @options[symbol]
+            @options[symbol] = File.expand_path(file)
+            next if type == :optional
+            if type == :required and not File.exist?(file)
+              raise CheripicIOError.new "#{symbol} file, #{file} does not exist: "
+            elsif type == :either and File.exist?(file)
+              check = 1
+            end
+          elsif type == :required
+            raise CheripicArgError.new "Options #{inputfiles}, all must be specified. " +
+                                              'Try --help for further help.'
           end
-        else
-          raise CheripicArgError.new "Options #{inputfiles}, all must be specified. " +
-                                            'Try --help for help.'
+        end
+        if type == :either and check == 0
+          raise CheripicArgError.new "One of the options #{inputfiles}, must be specified. " +
+                                       'Try --help for further help.'
         end
       end
     end
