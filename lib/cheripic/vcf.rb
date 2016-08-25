@@ -2,6 +2,12 @@
 
 module Cheripic
 
+  # Custom error handling for Vcf class
+  class VcfError < CheripicError; end
+
+  require 'bio-samtools'
+  require 'bio-gngm'
+
   class Vcf
 
     def self.get_allele_freq(vcf_obj)
@@ -13,34 +19,23 @@ module Cheripic
         # alt = freq[2].to_f + freq[3].to_f
         # allele_freq = alt / depth
         allele_freq = vcf_obj.non_ref_allele_freq
-        # check if the vcf has has AF fields in INFO
-      elsif vcf_obj.info.key?('AF')
-        allele_freq = vcf_obj.info['AF'].to_f
-        # check if the vcf is from VarScan (has RD, AD and FREQ fields in FORMAT)
+      # check if the vcf is from VarScan (has RD, AD and FREQ fields in FORMAT)
       elsif vcf_obj.samples['1'].key?('RD')
         alt = vcf_obj.samples['1']['AD'].to_f
         depth = vcf_obj.samples['1']['RD'].to_f + alt
         allele_freq = alt / depth
-        # check if the vcf is from GATK (has AD and GT fields in FORMAT)
+      # check if the vcf is from GATK (has AD and GT fields in FORMAT)
       elsif vcf_obj.samples['1'].key?('AD')
-        info =  vcf_obj.samples['1']['AD']
-        if info =~ /','/
+        info = vcf_obj.samples['1']['AD']
+        if info.include?(',')
           freq = vcf_obj.samples['1']['AD'].split(',')
           allele_freq = freq[1].to_f / ( freq[0].to_f + freq[1].to_f )
-        elsif vcf_obj.info.key?('AF')
-          allele_freq = vcf_obj.info['AF'].to_f
-        elsif vcf_obj.samples['1'].key?('GT')
-          gt = vcf_obj.samples['1']['GT']
-          if gt == '1/1'
-            allele_freq = 1.0
-          elsif gt == '0/1'
-            allele_freq = 0.5
-          end
         end
+      # check if the vcf has has AF fields in INFO
+      elsif vcf_obj.info.key?('AF')
+        allele_freq = vcf_obj.info['AF'].to_f
       else
-        warn "not a known vcf format and \
-check that it is one sample vcf\n"
-        exit
+        raise VcfError.new "not a supported vcf format (VarScan, GATK, Bcftools(Samtools), Vcf 4.0, 4.1 and 4.2) and check that it is one sample vcf\n"
       end
       allele_freq
     end
