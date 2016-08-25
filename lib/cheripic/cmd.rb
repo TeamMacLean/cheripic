@@ -170,9 +170,9 @@ module Cheripic
 
     # calls other methods to check if command line inputs are valid
     def check_arguments
-      check_input_types
       check_output
       check_log_level
+      check_input_types
     end
 
     # checks input files based on bulk file type
