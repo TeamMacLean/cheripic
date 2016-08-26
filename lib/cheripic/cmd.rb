@@ -194,6 +194,7 @@ module Cheripic
     def check_input_files(inputfiles)
       check = 0
       inputfiles.each_key do | type |
+        inputfiles[type].flatten!
         inputfiles[type].each do | symbol |
           if @options[symbol]
             file = @options[symbol]

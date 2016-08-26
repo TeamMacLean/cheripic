@@ -102,15 +102,20 @@ module Cheripic
       @vcf_hash.each_key do | id |
         positions = @vcf_hash[id][:het].keys
         positions << @vcf_hash[id][:hom].keys
+        positions.flatten!
+        next if positions.empty?
         contig_obj = @pileups[id]
         positions.each do | pos |
           pileuparray = []
-          bamobject.mpileup(:r => "#{id}:#{pos}-#{pos}", :Q => bq, :q => mq) do | pileup |
+          bamobject.mpileup(:r => "#{id}:#{pos}-#{pos}", :Q => bq, :q => mq, :B => true) do | pileup |
             pileuparray << pileup
           end
           # pileups not matching set mapping quality or 'N'
-          next if pileuparray.empty?
-          contig_obj.send(sym).store(pos, pileuparray[0])
+          if pileuparray.empty? or pileuparray[0].to_s =~ /^\t0/
+            logger.info "pileup data empty for\t#{id}\t#{pos}"
+          else
+            contig_obj.send(sym).store(pos, Pileup.new(pileuparray[0].to_s))
+          end
         end
       end
     end
