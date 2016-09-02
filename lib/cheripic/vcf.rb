@@ -11,7 +11,6 @@ module Cheripic
   class Vcf
 
     def self.get_allele_freq(vcf_obj)
-      allele_freq = 0
       # check if the vcf is from samtools (has DP4 and AF1 fields in INFO)
       if vcf_obj.info.key?('DP4')
         # freq = vcf_obj.info['DP4'].split(',')
@@ -25,17 +24,15 @@ module Cheripic
         depth = vcf_obj.samples['1']['RD'].to_f + alt
         allele_freq = alt / depth
       # check if the vcf is from GATK (has AD and GT fields in FORMAT)
-      elsif vcf_obj.samples['1'].key?('AD')
-        info = vcf_obj.samples['1']['AD']
-        if info.include?(',')
-          freq = vcf_obj.samples['1']['AD'].split(',')
-          allele_freq = freq[1].to_f / ( freq[0].to_f + freq[1].to_f )
-        end
+      elsif vcf_obj.samples['1'].key?('AD') and vcf_obj.samples['1']['AD'].include?(',')
+        freq = vcf_obj.samples['1']['AD'].split(',')
+        allele_freq = freq[1].to_f / ( freq[0].to_f + freq[1].to_f )
       # check if the vcf has has AF fields in INFO
       elsif vcf_obj.info.key?('AF')
         allele_freq = vcf_obj.info['AF'].to_f
       else
-        raise VcfError.new "not a supported vcf format (VarScan, GATK, Bcftools(Samtools), Vcf 4.0, 4.1 and 4.2) and check that it is one sample vcf\n"
+        raise VcfError.new 'not a supported vcf format (VarScan, GATK, Bcftools(Samtools), Vcf 4.0, 4.1 and 4.2)' +
+                               " and check that it is one sample vcf\n"
       end
       allele_freq
     end
