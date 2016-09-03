@@ -1,10 +1,11 @@
 <tool id="cheripic" name="CHERIPIC" version="1.2.0">
 
-  <description>CHERIPIC, is a ruby tools to pick causative mutation from bulks segregant sequencing</description>
+  <description>CHERIPIC</description>
 
   <version_command>cheripic -v</version_command>
 
   <command>
+<![CDATA[
     cheripic
     --assembly $assembly
     --mut-bulk $mut_bulk
@@ -29,14 +30,15 @@
     --bg-parent $bg_parent
     --bfr-adjust $bfr_adjust
     --sel-seq-len $sel_seq_len
+]]>
   </command>
 
   <inputs>
     <param name="assembly" type="data" format="fasta" label="Input Assembly file" help="Select Assembly fasta file" />
     <param name="mut_bulk" type="data" format="pileup" label="mutant bulk pileup file" help="Select mutant bulk pileup file" />
     <param name="bg_bulk" type="data" format="pileup" label="background bulk pileup file" min="1" multiple="true" help="Select background bulk pileup file" />
-    <param name="loglevel" type="select" optional="true" value="info" label="analysis log level" help="choose between info, warn and debug levels">
-      <option value="info">info</option>
+    <param name="loglevel" type="select" optional="true" label="analysis log level" help="choose between info, warn and debug levels">
+      <option value="info" selected="true">info </option>
       <option value="warn">warnings</option>
       <option value="debug">debug</option>
     </param>
@@ -60,8 +62,8 @@
            label="minimum base quality" help="minimum base quality of nucleotides covering the position" />
     <param name="noise" size="4" type="float" optional="true" value="0.1" min="0" max="0.2"
            label="read noise" help="proportion of reads supporting a variant, below which are consider as noise" />
-    <param name="cross_type" type="select" optional="true" value="back" label="cross type" help="type of cross used to generated mapping population - back or out" >
-      <option value="back">back cross</option>
+    <param name="cross_type" type="select" optional="true" label="cross type" help="type of cross used to generated mapping population - back or out" >
+      <option value="back" selected="true">back cross</option>
       <option value="out">out cross</option>
     </param>
 
@@ -83,98 +85,112 @@
   </inputs>
 
   <outputs>
-    <data name="output" format="txt" />
+    <data name="output_1" format="txt" file="${output}_selected_hme_variants.txt" />
+    <data name="output_2" format="txt" file="${output}_selected_bfr_variants.txt" />
   </outputs>
 
   <tests>
+    <test>
+      <param name="assembly" value="picked_fasta.fa" ftype="fasta" />
+      <param name="mut_bulk" value="mut_bulk.pileup" ftype="pileup" />
+      <param name="bg_bulk" value="wt_bulk.pileup" ftype="pileup" />
+      <output name="output" ftype="txt" file="selected_variants.out" />
+    </test>
   </tests>
 
   <help>
 
-    **Computing Homozygosity Enriched Regions In genomes to Prioritize Identification of Candidate variants (CHERIPIC)**
+**Computing Homozygosity Enriched Regions In genomes to Prioritize Identification of Candidate variants (CHERIPIC)**
 
-    ------
+CHERIPIC is a ruby tool to pick causative mutation from bulk segregant sequencing
 
-    **What it does**
+------
 
-    This tool uses ``cheripic`` tool to analyse bulk segregant sequencing to identify causative muation
+**What it does**
+
+This tool uses ``cheripic`` tool to analyse bulk segregant sequencing to identify causative muation
 
 
-    .. class:: infomark
+.. class:: infomark
 
-    Provides a list of snps that could either closely linked markers or the causative mutation.
+Provides a list of snps that could either closely linked markers or the causative mutation.
 
-    ------
+------
 
-    **Input formats**
+**Input formats**
 
-    assembly file should be a fasta file used for generating pileups from bulks
-    bulk alignment files should be pileup files
+assembly file should be a fasta file used for generating pileups from bulks
+bulk alignment files should be pileup files
 
-    ------
+------
 
-    **Outputs**
+**Outputs**
 
-    The output is a text file, and has the following columns::
+The output is a text file, and has the following columns::
 
-    Column              Description
-    -----------------   --------------------------------------------------------
-    1  HME_Score        Homozygosity Enrichment score
-    2  AlleleFreq       Allele frequency
-    3  seq_id           Contig/Scaffold id
-    4  position         1-based index of the position in contig
-    5  ref_base         Reference nucleotide at the position
-    6  coverage         read depth
-    7  bases            read bases
-    8  base_quals       read base qualities
-    9  sequence_left    selected size of reference sequence on the left variant
-    10 Alt_seq          Alternate allele at the position
-    11 sequence_right   selected size of reference sequence on the right variant
+  Column              Description
+  -----------------   --------------------------------------------------------
+  1  HME_Score        Homozygosity Enrichment score
+  2  AlleleFreq       Allele frequency
+  3  seq_id           Contig/Scaffold id
+  4  position         1-based index of the position in contig
+  5  ref_base         Reference nucleotide at the position
+  6  coverage         read depth
+  7  bases            read bases
+  8  base_quals       read base qualities
+  9  sequence_left    selected size of reference sequence on the left variant
+  10 Alt_seq          Alternate allele at the position
+  11 sequence_right   selected size of reference sequence on the right variant
 
-    ------
+------
 
-    **cheripic settings**
+**cheripic settings**
 
-    All of the options have a default value. You can change any of them. All of the options are implemented.
+All of the options have a default value. You can change any of them. All of the options are implemented.
 
-    ------
+------
 
-    **cheripic parameter list**
+**cheripic parameter list**
 
-    OPTIONS:
-    -f, --assembly               Assembly file in FASTA format
-    -F, --input-format           bulk and parent alignment file format types - set either pileup or bam (default: pileup)
-    -a, --mut-bulk               Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1
-    -b, --bg-bulk                Pileup or sorted BAM file alignments from background/wildtype bulk 2
-    --output                     Directory to store results, will be created if not existing (default: cheripic_results)
-    --loglevel                   Choose any one of "info / warn / debug" level for logs generated (default: debug)
-    --hmes-adjust                factor added to snp count of each contig to adjust for hme score calculations (default: 0.5)
-    --htlow                      lower level for categorizing heterozygosity (default: 0.2)
-    --hthigh                     high level for categorizing heterozygosity (default: 0.9)
-    --mindepth                   minimum read depth to conisder a position for variant calls (default: 6)
-    --min-non-ref-count          minimum read depth supporting non reference base at each position (default: 3)
-    --min-indel-count-support    minimum read depth supporting an indel at each position (default: 3)
-    --ambiguous-ref-bases        including variant at completely ambiguous bases in the reference
-    -q, --mapping-quality        minimum mapping quality of read covering the position (default: 20)
-    -Q, --base-quality           minimum base quality of bases covering the position (default: 15)
-    --noise                      praportion of reads for a variant to conisder as noise (default: 0.1)
-    --cross-type                 type of cross used to generated mapping population - back or out (default: back)
-    --use-all-contigs            option to select all contigs or only contigs containing variants for analysis
-    --include-low-hmes           option to include or discard variants from contigs with low hme-score or bfr score to list in the final output
-    --polyploidy                 Set if the data input is from polyploids
-    -p, --mut-parent             Pileup or sorted BAM file alignments from mutant/trait of interest parent (default: )
-    -r, --bg-parent              Pileup or sorted BAM file alignments from background/wildtype parent (default: )
-    --bfr-adjust                 factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)
-    --sel-seq-len                sequence length to print from either side of selected variants (default: 50)
+OPTIONS:
+  -f, --assembly               Assembly file in FASTA format
+  -F, --input-format           bulk and parent alignment file format types - set either pileup or bam (default: pileup)
+  -a, --mut-bulk               Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1
+  -b, --bg-bulk                Pileup or sorted BAM file alignments from background/wildtype bulk 2
+  --output                     Directory to store results, will be created if not existing (default: cheripic_results)
+  --loglevel                   Choose any one of "info / warn / debug" level for logs generated (default: debug)
+  --hmes-adjust                factor added to snp count of each contig to adjust for hme score calculations (default: 0.5)
+  --htlow                      lower level for categorizing heterozygosity (default: 0.2)
+  --hthigh                     high level for categorizing heterozygosity (default: 0.9)
+  --mindepth                   minimum read depth to conisder a position for variant calls (default: 6)
+  --min-non-ref-count          minimum read depth supporting non reference base at each position (default: 3)
+  --min-indel-count-support    minimum read depth supporting an indel at each position (default: 3)
+  --ambiguous-ref-bases        including variant at completely ambiguous bases in the reference
+  -q, --mapping-quality        minimum mapping quality of read covering the position (default: 20)
+  -Q, --base-quality           minimum base quality of bases covering the position (default: 15)
+  --noise                      praportion of reads for a variant to conisder as noise (default: 0.1)
+  --cross-type                 type of cross used to generated mapping population - back or out (default: back)
+  --use-all-contigs            option to select all contigs or only contigs containing variants for analysis
+  --include-low-hmes           option to include or discard variants from contigs with low hme-score or bfr score to list in the final output
+  --polyploidy                 Set if the data input is from polyploids
+  -p, --mut-parent             Pileup or sorted BAM file alignments from mutant/trait of interest parent (default: )
+  -r, --bg-parent              Pileup or sorted BAM file alignments from background/wildtype parent (default: )
+  --bfr-adjust                 factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)
+  --sel-seq-len                sequence length to print from either side of selected variants (default: 50)
 
-    ------
+------
 
-    .. class:: infomark
+.. class:: infomark
 
-    **Tool Author**
+**Tool Author**
 
-    Shyam Rallapalli
+Shyam Rallapalli
+
 
   </help>
+
+  <citations>
+    <citation type="doi">10.1093/bioinformatics/btg1080</citation>
+  </citations>
 
 </tool>
