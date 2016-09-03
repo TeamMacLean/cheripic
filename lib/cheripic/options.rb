@@ -12,6 +12,7 @@ module Cheripic
         :htlow => 0.2,
         :hthigh => 0.9,
         :mindepth => 6,
+        :maxdepth => 300,
         :min_non_ref_count => 3,
         :min_indel_count_support => 3,
         :ambiguous_ref_bases => false,
@@ -51,6 +52,12 @@ module Cheripic
     # @return [Integer]
     def self.mindepth
       @user_settings[:mindepth]
+    end
+
+    # Maximum read coverage at the variant position to be considered for analysis
+    # @return [Integer]
+    def self.maxdepth
+      @user_settings[:maxdepth]
     end
 
     # Minimum non reference count at the variant position to be considered for analysis
