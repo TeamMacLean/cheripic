@@ -62,6 +62,13 @@ class CmdTest < Minitest::Test
       end
     end
 
+    should 'take bam and vcf files as input' do
+      file3 = File.join(File.dirname(__FILE__), 'data', 'ngs.vcf')
+      assert_raises Cheripic::CheripicArgError do
+        Cheripic::Cmd.new("--assembly #{@file1} --input-format bam --mut-bulk #{@file2} --mut-bulk-vcf #{file3} --polyploidy true".split)
+      end
+    end
+
     should 'print help message' do
       begin
         puts '  -- printing help message to /dev/null'
