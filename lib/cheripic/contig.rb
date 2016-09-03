@@ -22,7 +22,7 @@ module Cheripic
   #   @return [Integer] length of contig in bases
   class Contig
 
-    attr_accessor :hm_pos, :ht_pos, :hemi_pos
+    attr_accessor :hm_pos, :ht_pos, :hemi_pos, :mean_depth, :sd_depth
     attr_reader :id, :length
 
     # creates a Contig object using fasta entry
@@ -33,6 +33,8 @@ module Cheripic
       @hm_pos = {}
       @ht_pos = {}
       @hemi_pos = {}
+      @mean_depth = nil
+      @sd_depth = nil
     end
 
     # Number of homozygous variants identified in the contig

@@ -72,6 +72,34 @@ module Cheripic
       @pileups_analyzed = true
     end
 
+    # Bam object is read and each contig mean and std deviation of depth calculated
+    # @param bamobject [Bio::DB::Sam]
+    def set_max_depth(bamobject)
+      all_depths = []
+      bq = Options.base_quality
+      mq = Options.mapping_quality
+      @assembly.each_key do | id |
+        contig_obj = @assembly[id]
+        len = contig_obj.length
+        data = bamobject.depth(:r => "#{id}", :Q => bq, :q => mq)
+        depths = []
+        data.split("\n").each do |line|
+          info = line.split("\t")
+          depths << info[2].to_i
+        end
+        variance = 0
+        mean_depth = depths.reduce(0, :+) / len.to_f
+        depths.each do |value|
+          variance += (value.to_f - mean_depth)**2
+        end
+        all_depths << mean_depth
+        contig_obj.sd_depth = Math.sqrt(variance)
+        contig_obj.mean_depth = mean_depth
+      end
+      # setting max depth as 3 times the average depth
+      Options.maxdepth = 3 * (all_depths.reduce(0, :+) / @assembly.length.to_f)
+    end
+
     # Input pileup file is read and positions are selected that pass the thresholds
     # @param pileupfile [String] path to the pileup file to read
     # @param sym [Symbol] Symbol of the pileup file used to write selected variants
