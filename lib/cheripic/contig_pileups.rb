@@ -44,16 +44,25 @@ module Cheripic
       @bg_parent = {}
       @parent_hemi = {}
       @masked_regions = {}
+      @hm_pos = {}
+      @ht_pos = {}
+      @hemi_pos = {}
     end
 
     # bulk pileups are compared and variant positions are selected
     # @return [Array<Hash>] variant positions are stored in hashes
     # for homozygous, heterozygous and hemi-variant positions
     def bulks_compared
-      @hm_pos = {}
-      @ht_pos = {}
-      @hemi_pos = {}
       @mut_bulk.each_key do | pos |
+        ignore = 0
+        unless @masked_regions.empty?
+          @masked_regions.each_key do | index |
+            if pos.between?(@masked_regions[index][:begin], @masked_regions[index][:end])
+              ignore = 1
+            end
+          end
+        end
+        next if ignore == 1
         if Options.polyploidy and @parent_hemi.key?(pos)
           bg_bases = ''
           if @bg_bulk.key?(pos)
@@ -157,7 +166,7 @@ module Cheripic
     end
 
     # Compares parental pileups for the contig and identify position
-    # that indicate variants from homelogues called hemi-snps
+    # that indicate variants from homeologues called hemi-snps
     # and calculates bulk frequency ratio (bfr)
     # @return [Hash] parent_hemi hash with position as key and bfr as value
     def hemisnps_in_parent
