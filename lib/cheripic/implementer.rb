@@ -30,7 +30,8 @@ module Cheripic
                 hmes_frags
                 bfr_frags
                 mut_parent
-                bg_parent}
+                bg_parent
+                repeats_file}
       @options = OpenStruct.new(inputs.select { |k| set1.include?(k) })
 
       set2 = %i{hmes_adjust

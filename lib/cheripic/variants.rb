@@ -50,6 +50,21 @@ module Cheripic
         @pileups[contig.id] = ContigPileups.new(contig.id)
       end
       @pileups_analyzed = false
+      unless @params.repeats_file == ''
+        store_repeat_regions
+      end
+    end
+
+    # reads repeat masker output file and stores masked regions to ignore variants in thos regions
+    def store_repeat_regions
+      File.foreach(@params.repeats_file) do |line|
+        next if line =~ /^\sSW/ or line =~ /^score/ or line == ''
+        info = line.split("\t")
+        pileups_obj = @pileups[info[4]]
+        index = pileups_obj.masked_regions.length
+        pileups_obj.masked_regions[index + 1][:begin] = info[5].to_i
+        pileups_obj.masked_regions[index + 1][:end] = info[6].to_i
+      end
     end
 
     # Reads and store pileup data for each of input bulk and parents pileup files
@@ -126,6 +141,7 @@ module Cheripic
       unless bamobject.indexed?
         bamobject.index
       end
+      set_max_depth(bamobject)
 
       @vcf_hash.each_key do | id |
         positions = @vcf_hash[id][:het].keys

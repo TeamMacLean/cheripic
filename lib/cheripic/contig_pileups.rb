@@ -32,7 +32,7 @@ module Cheripic
     def_delegators :@mut_parent, :each, :each_key, :each_value, :length, :[], :store
     def_delegators :@bg_parent, :each, :each_key, :each_value, :length, :[], :store
     attr_accessor :id, :parent_hemi
-    attr_accessor :mut_bulk, :bg_bulk, :mut_parent, :bg_parent
+    attr_accessor :mut_bulk, :bg_bulk, :mut_parent, :bg_parent, :masked_regions
 
     # creates a ContigPileup object using fasta entry id
     # @param fasta [String] a contig id from fasta entry
@@ -43,6 +43,7 @@ module Cheripic
       @mut_parent = {}
       @bg_parent = {}
       @parent_hemi = {}
+      @masked_regions = {}
     end
 
     # bulk pileups are compared and variant positions are selected
