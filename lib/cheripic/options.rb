@@ -6,13 +6,18 @@ module Cheripic
   # and facilitate retrieval of settings any where in the module
   class Options
 
+    # class variable to update maxdepth value from bamfile
+    # @!attribute [rw] maxdepth
+    #   @return [Integer] max coverage at a position to consider as a variant
+    class << self; attr_accessor :maxdepth end
+
     # Default parameter settings
     @def_settings = {
         :hmes_adjust => 0.5,
         :htlow => 0.2,
         :hthigh => 0.9,
         :mindepth => 6,
-        :maxdepth => 300,
+        :maxdepth => 500,
         :min_non_ref_count => 3,
         :min_indel_count_support => 3,
         :ambiguous_ref_bases => false,
