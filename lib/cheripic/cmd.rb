@@ -72,9 +72,12 @@ module Cheripic
         opt :hthigh, 'high level for categorizing heterozygosity',
             :type => Float,
             :default => 0.9
-        opt :mindepth, 'minimum read depth to conisder a position for variant calls',
+        opt :mindepth, 'minimum read depth at a position to consider for variant calls',
             :type => Integer,
             :default => 6
+        opt :maxdepth, 'maximum read depth at a position to consider for variant calls',
+            :type => Integer,
+            :default => 500
         opt :min_non_ref_count, 'minimum read depth supporting non reference base at each position',
             :type => Integer,
             :default => 3
@@ -113,6 +116,10 @@ module Cheripic
             :default => ''
         opt :bg_parent, 'Pileup or sorted BAM file alignments from background/wildtype parent',
             :short => '-r',
+            :type => String,
+            :default => ''
+        opt :repeats_file, 'repeat masker output file for the assembly ',
+            :short => '-R',
             :type => String,
             :default => ''
         opt :bfr_adjust, 'factor added to hemi snp frequency of each parent to adjust for bfr calculations',
@@ -154,15 +161,19 @@ module Cheripic
     def print_examples
       msg = <<-EOS
 
-        Cheripic v#{Cheripic::VERSION.dup}
+      Cheripic v#{Cheripic::VERSION.dup}
+      Authors: Shyam Rallapalli and Dan MacLean
 
-        EXAMPLE COMMANDS:
-          1. cheripic -f assembly.fa -a mutbulk.pileup -b bgbulk.pileup --output=cheripic_output
-          2. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup
-                --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true --output cheripic_results
-          3. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup
-                --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true
-                --no-only-frag-with-vars --no-filter-out-low-hmes --output cheripic_results
+      EXAMPLE COMMANDS:
+        1. cheripic -f assembly.fa -a mutbulk.pileup -b bgbulk.pileup --output=cheripic_output
+        2. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup
+              --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true --output cheripic_results
+        3. cheripic --assembly assembly.fa --mut-bulk mutbulk.pileup --bg-bulk bgbulk.pileup
+              --mut-parent mutparent.pileup --bg-parent bgparent.pileup --polyploidy true
+              --no-only-frag-with-vars --no-filter-out-low-hmes --output cheripic_results
+        4. cheripic -h or cheripic --help
+        5. cheripic -v or cheripic --version
+
       EOS
       puts msg.split("\n").map{ |line| line.lstrip }.join("\n")
       exit(0)
