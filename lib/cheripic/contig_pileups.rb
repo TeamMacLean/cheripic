@@ -43,7 +43,7 @@ module Cheripic
       @mut_parent = {}
       @bg_parent = {}
       @parent_hemi = {}
-      @masked_regions = {}
+      @masked_regions = Hash.new { |h,k| h[k] = {} }
       @hm_pos = {}
       @ht_pos = {}
       @hemi_pos = {}
@@ -59,6 +59,7 @@ module Cheripic
           @masked_regions.each_key do | index |
             if pos.between?(@masked_regions[index][:begin], @masked_regions[index][:end])
               ignore = 1
+              logger.info "variant is in the masked region\t#{@mut_bulk[pos].to_s}"
             end
           end
         end
