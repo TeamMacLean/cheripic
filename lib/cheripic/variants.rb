@@ -58,8 +58,9 @@ module Cheripic
     # reads repeat masker output file and stores masked regions to ignore variants in thos regions
     def store_repeat_regions
       File.foreach(@params.repeats_file) do |line|
-        next if line =~ /^\sSW/ or line =~ /^score/ or line == ''
-        info = line.split("\t")
+        line.strip!
+        next if line =~ /^SW/ or line =~ /^score/ or line == ''
+        info = line.split("\s")
         pileups_obj = @pileups[info[4]]
         index = pileups_obj.masked_regions.length
         pileups_obj.masked_regions[index + 1][:begin] = info[5].to_i
