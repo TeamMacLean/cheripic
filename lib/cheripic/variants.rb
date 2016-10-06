@@ -90,14 +90,14 @@ module Cheripic
 
     # Bam object is read and each contig mean and std deviation of depth calculated
     # @param bamobject [Bio::DB::Sam]
-    def set_max_depth(bamobject)
+    def set_max_depth(bamobject, bamfile)
       all_depths = []
       bq = Options.base_quality
       mq = Options.mapping_quality
       @assembly.each_key do | id |
         contig_obj = @assembly[id]
         len = contig_obj.length
-        data = bamobject.depth(:r => "#{id}", :Q => bq, :q => mq)
+        data = %x[#{bamobject.samtools} depth -r "#{id}" -Q #{bq} -q #{mq} --reference #{@params.assembly} #{bamfile}]
         depths = []
         data.split("\n").each do |line|
           info = line.split("\t")
@@ -113,7 +113,8 @@ module Cheripic
         contig_obj.mean_depth = mean_depth
       end
       # setting max depth as 3 times the average depth
-      Options.maxdepth = 3 * (all_depths.reduce(0, :+) / @assembly.length.to_f)
+      mean_coverage = all_depths.reduce(0, :+) / @assembly.length.to_f
+      Options.maxdepth = Options.max_d_multiple * mean_coverage
     end
 
     # Input pileup file is read and positions are selected that pass the thresholds
@@ -142,7 +143,15 @@ module Cheripic
       unless bamobject.indexed?
         bamobject.index
       end
-      set_max_depth(bamobject)
+
+      # check if user has set max depth or set to zero to ignore
+      max_d = Options.maxdepth
+      # or calculate from bamfile
+      if Options.max_d_multiple > 0
+        set_max_depth(bamobject, bamfile)
+        max_d = Options.maxdepth
+        logger.info "max depth used for #{sym} file\t#{max_d}"
+      end
 
       @vcf_hash.each_key do | id |
         positions = @vcf_hash[id][:het].keys
@@ -153,7 +162,11 @@ module Cheripic
         positions.each do | pos |
           pileuparray = []
           bamobject.mpileup(:r => "#{id}:#{pos}-#{pos}", :Q => bq, :q => mq, :B => true) do | pileup |
-            pileuparray << pileup
+            if max_d == 0 or pileup.coverage <= max_d
+              pileuparray << pileup
+            else
+              logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
+            end
           end
           # pileups not matching set mapping quality or 'N'
           if pileuparray.empty? or pileuparray[0].to_s =~ /^\t0/
