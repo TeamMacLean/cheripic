@@ -75,9 +75,14 @@ module Cheripic
         opt :mindepth, 'minimum read depth at a position to consider for variant calls',
             :type => Integer,
             :default => 6
-        opt :maxdepth, 'maximum read depth at a position to consider for variant calls',
+        opt :max_d_multiple, "multiplication factor for average coverage to calculate maximum
+read coverage\n if set zero no calculation will be made from bam file.\n setting this value will override user set max depth",
             :type => Integer,
-            :default => 500
+            :default => 5
+        opt :maxdepth, "maximum read depth at a position to consider for variant calls\n
+if set to zero no user max depth will be used",
+            :type => Integer,
+            :default => 0
         opt :min_non_ref_count, 'minimum read depth supporting non reference base at each position',
             :type => Integer,
             :default => 3
