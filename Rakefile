@@ -23,7 +23,7 @@ TRAVELING_RUBY_VERSION = '20150210-2.1.5'
 # http://d6r77u77i8pq3.cloudfront.net/releases/traveling-ruby-20150210-2.1.5-osx.tar.gz
 
 desc 'Package your app'
-task :package => ['package:linux:x86_64', 'package:osx']
+task :package => %w(package:linux:x86_64 package:osx)
 
 namespace :package do
 

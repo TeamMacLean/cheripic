@@ -38,6 +38,8 @@ module Cheripic
                 htlow
                 hthigh
                 mindepth
+                maxdepth
+                max_d_multiple
                 min_non_ref_count
                 min_indel_count_support
                 ambiguous_ref_bases
@@ -48,7 +50,8 @@ module Cheripic
                 use_all_contigs
                 include_low_hmes
                 polyploidy
-                bfr_adjust}
+                bfr_adjust
+                sel_seq_len}
       settings = inputs.select { |k| set2.include?(k) }
       Options.update(settings)
       @vars_extracted = false

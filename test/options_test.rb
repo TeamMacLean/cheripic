@@ -10,7 +10,8 @@ class OptionsTest < Minitest::Test
           :htlow => 0.2,
           :hthigh => 0.9,
           :mindepth => 6,
-          :maxdepth => 500,
+          :maxdepth => 0,
+          :max_d_multiple=>5,
           :min_non_ref_count => 3,
           :min_indel_count_support => 3,
           :ambiguous_ref_bases => false,
@@ -29,7 +30,8 @@ class OptionsTest < Minitest::Test
       assert_equal(0.2, Cheripic::Options::htlow)
       assert_equal(0.9, Cheripic::Options::hthigh)
       assert_equal(6, Cheripic::Options::mindepth)
-      assert_equal(500, Cheripic::Options::maxdepth)
+      assert_equal(0, Cheripic::Options::maxdepth)
+      assert_equal(5, Cheripic::Options::max_d_multiple)
       assert_equal(3, Cheripic::Options::min_non_ref_count)
       assert_equal(3, Cheripic::Options::min_indel_count_support)
       assert_equal(true, Cheripic::Options::ignore_reference_n)
@@ -50,7 +52,8 @@ class OptionsTest < Minitest::Test
           :htlow => 0.3,
           :hthigh => 0.8,
           :mindepth => 6,
-          :maxdepth => 500,
+          :maxdepth => 0,
+          :max_d_multiple=>3,
           :min_non_ref_count => 3,
           :min_indel_count_support => 3,
           :ambiguous_ref_bases => false,
@@ -65,6 +68,11 @@ class OptionsTest < Minitest::Test
           :sel_seq_len => 50
       }
       assert_equal(newset, Cheripic::Options::update(newset))
+    end
+
+    should 'get udpated max depth' do
+      Cheripic::Options::maxdepth = 50
+      assert_equal(50, Cheripic::Options::maxdepth)
     end
 
 
