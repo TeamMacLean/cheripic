@@ -73,6 +73,8 @@ class OptionsTest < Minitest::Test
     should 'get udpated max depth' do
       Cheripic::Options::maxdepth = 50
       assert_equal(50, Cheripic::Options::maxdepth)
+      # reset maxdepth to zero for default comparison
+      Cheripic::Options::maxdepth = 0
     end
 
 

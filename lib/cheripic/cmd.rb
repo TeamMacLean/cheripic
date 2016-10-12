@@ -75,11 +75,11 @@ module Cheripic
         opt :mindepth, 'minimum read depth at a position to consider for variant calls',
             :type => Integer,
             :default => 6
-        opt :max_d_multiple, "multiplication factor for average coverage to calculate maximum
-read coverage\n if set zero no calculation will be made from bam file.\n setting this value will override user set max depth",
+        opt :max_d_multiple, "multiplication factor for average coverage to calculate maximum read coverage
+if set zero no calculation will be made from bam file.\nsetting this value will override user set max depth",
             :type => Integer,
             :default => 5
-        opt :maxdepth, "maximum read depth at a position to consider for variant calls\n
+        opt :maxdepth, "maximum read depth at a position to consider for variant calls
 if set to zero no user max depth will be used",
             :type => Integer,
             :default => 0
@@ -109,7 +109,8 @@ if set to zero no user max depth will be used",
         opt :use_all_contigs, 'option to select all contigs or only contigs containing variants for analysis',
             :type => FalseClass,
             :default => false
-        opt :include_low_hmes, 'option to include or discard variants from contigs with low hme-score or bfr score to list in the final output',
+        opt :include_low_hmes, 'option to include or discard variants from contigs with
+low hme-score or bfr score to list in the final output',
             :type => FalseClass,
             :default => false
         opt :polyploidy, 'Set if the data input is from polyploids',

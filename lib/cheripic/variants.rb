@@ -27,7 +27,7 @@ module Cheripic
     include Enumerable
     extend Forwardable
     def_delegators :@assembly, :each, :each_key, :each_value, :size, :length, :[]
-    attr_reader :assembly, :pileups, :hmes_frags, :bfr_frags, :pileups_analyzed
+    attr_reader :assembly, :pileups, :pileups_analyzed
 
     # creates a Variants object using user input files
     # @param options [OpenStruct] a hash of required input files as keys and file paths as values
