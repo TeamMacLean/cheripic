@@ -4,6 +4,36 @@ require 'forwardable'
 
 module Cheripic
 
+  require 'bio-samtools'
+  require 'bio/db/sam'
+  require 'open3'
+
+  # An extension of Bio::DB::Sam object to modify depth method
+  class Bio::DB::Sam
+
+    # A method to retrieve depth information from bam object
+    # @param opts [Hash] a hash of following input options
+    #   b [File] list of positions or regions in BED format
+    #   l [INT] minQLen
+    #   q [INT] base quality threshold
+    #   Q [INT] mapping quality threshold
+    #   r [chr:from-to] region
+    # @returns a block with each line reporting sequence_name, position and depth
+    def depth(opts={})
+      command = form_opt_string(self.samtools, 'depth', opts)
+      # capture returns string output, so careful not to give whole genome or big contigs for depth analysis
+      stdout, stderr, status = Open3.capture3(command)
+      unless status.success?
+        logger.error "resulted in exit code #{status.exitstatus} using #{command}"
+        logger.error "stderr output is: #{stderr}"
+        raise CheripicError
+      end
+      # return stdout
+      stdout
+    end
+
+  end
+
   # Custom error handling for Variants class
   class VariantsError < CheripicError; end
 
@@ -77,6 +107,7 @@ module Cheripic
       %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
         infile = @params[input]
         if infile != ''
+          logger.info "processing #{input} file"
           if @params.input_format == 'pileup'
             extract_pileup(infile, input)
           else
@@ -90,14 +121,16 @@ module Cheripic
 
     # Bam object is read and each contig mean and std deviation of depth calculated
     # @param bamobject [Bio::DB::Sam]
+    # Open3 capture returns string output, so careful not to give whole genome or big contigs for depth analysis
     def set_max_depth(bamobject, bamfile)
+      logger.info "processing #{bamfile} file for depth"
       all_depths = []
       bq = Options.base_quality
       mq = Options.mapping_quality
       @assembly.each_key do | id |
         contig_obj = @assembly[id]
         len = contig_obj.length
-        data = %x[#{bamobject.samtools} depth -r "#{id}" -Q #{bq} -q #{mq} --reference #{@params.assembly} #{bamfile}]
+        data = bamobject.depth(:r => "#{id}", :Q => bq, :q => mq)
         depths = []
         data.split("\n").each do |line|
           info = line.split("\t")
@@ -140,9 +173,7 @@ module Cheripic
       bq = Options.base_quality
       mq = Options.mapping_quality
       bamobject = Bio::DB::Sam.new(:bam=>bamfile, :fasta=>@params.assembly)
-      unless bamobject.indexed?
-        bamobject.index
-      end
+      bamobject.index unless bamobject.indexed?
 
       # check if user has set max depth or set to zero to ignore
       max_d = Options.maxdepth
