@@ -85,25 +85,35 @@ module Cheripic
     # @param pos [Integer] position in the contig
     # stores variant type, position and allele fraction to either @hm_pos or @ht_pos hashes
     def compare_pileup(pos)
-      base_hash = @mut_bulk[pos].var_base_frac
-      base_hash.delete(:ref)
-      return nil if base_hash.empty?
-      # we could ignore complex loci or
-      # take the variant type based on predominant base
-      if base_hash.length > 1
-        fraction = base_hash.values.max
-        mut_type = var_mode(fraction)
-      else
-        fraction = base_hash[base_hash.keys[0]]
-        mut_type = var_mode(fraction)
-      end
+      mut_type, fraction = var_mode_fraction(@mut_bulk[pos])
+      return nil if mut_type.nil?
       if @bg_bulk.key?(pos)
-        bg_type = bg_bulk_var(pos)
+        bg_type = var_mode_fraction(@bg_bulk[pos])[0]
         mut_type = compare_var_type(mut_type, bg_type)
       end
-      unless mut_type == nil
+      unless mut_type.nil?
         categorise_pos(mut_type, pos, fraction)
       end
+    end
+
+
+    # Method to extract var_mode and allele fraction from pileup information at a position in contig
+    #
+    # @param pileup_info [Pileup] pileup object
+    # @return [Symbol] variant mode from pileup position (:hom or :het) at the position
+    # @return [Float] allele fraction at the position
+    def var_mode_fraction(pileup_info)
+      base_frac_hash = pileup_info.var_base_frac
+      base_frac_hash.delete(:ref)
+      return [nil, nil] if base_frac_hash.empty?
+      # we could ignore complex loci or
+      # take the variant type based on predominant base
+      if base_frac_hash.length > 1
+        fraction = base_frac_hash.values.max
+      else
+        fraction = base_frac_hash[base_frac_hash.keys[0]]
+      end
+      [var_mode(fraction), fraction]
     end
 
     # Categorizes variant zygosity based on the allele fraction provided.
@@ -136,23 +146,6 @@ module Cheripic
       end
     end
 
-    # Method to extract var_mode from pileup information at a position in contig
-    #
-    # @param pos [Integer] position in the contig
-    # @return [Symbol] variant mode of the background bulk (:hom or :het) at the position
-    def bg_bulk_var(pos)
-      bg_base_hash = @bg_bulk[pos].var_base_frac
-      bg_base_hash.delete(:ref)
-      return nil if bg_base_hash.empty?
-      if bg_base_hash.length > 1
-        # taking only var mode
-        var_mode(bg_base_hash.values.max)
-      else
-        # taking only var mode
-        var_mode(bg_base_hash[bg_base_hash.keys[0]])
-      end
-    end
-
     # method stores pos as key and allele fraction as value
     # to @hm_pos or @ht_pos hash based on variant type
     # @param var_type [Symbol]  values are either :hom or :het
@@ -172,13 +165,13 @@ module Cheripic
     # @return [Hash] parent_hemi hash with position as key and bfr as value
     def hemisnps_in_parent
       # mark all the hemi snp based on both parents
-      self.mut_parent.each_key do |pos|
+      @mut_parent.each_key do |pos|
         mut_parent_frac = @mut_parent[pos].var_base_frac
-        if self.bg_parent.key?(pos)
+        if @bg_parent.key?(pos)
           bg_parent_frac = @bg_parent[pos].var_base_frac
           bfr = Bfr.get_bfr(mut_parent_frac, bg_parent_frac)
           @parent_hemi[pos] = bfr
-          self.bg_parent.delete(pos)
+          @bg_parent.delete(pos)
         else
           bfr = Bfr.get_bfr(mut_parent_frac)
           @parent_hemi[pos] = bfr
@@ -186,7 +179,7 @@ module Cheripic
       end
 
       # now include all hemi snp unique to background parent
-      self.bg_parent.each_key do |pos|
+      @bg_parent.each_key do |pos|
         unless @parent_hemi.key?(pos)
           bg_parent_frac = @bg_parent[pos].var_base_frac
           bfr = Bfr.get_bfr(bg_parent_frac)
