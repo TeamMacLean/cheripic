@@ -6,8 +6,12 @@ All significant changes to this project at each release are documented in this f
 #### Future changes to include
     
     1. option to take multiple background pileup files
-    2. replace output directory with output file name tag, since we only write to one file
-    3. option to take bam file or pileup file as inputs of bulks
+    2. option to run only using with vcf files only to increase speed of analysis for larger genomes
+
+#### [1.2.5] - 2016-10-17
+
+    1. Updated methods take bam file (along with a vcf file) or pileup file as inputs of bulks
+    2. Replaced output directory with output file name tag, since we only write to one file
 
 #### [1.2.0] - 2016-08-11
 
