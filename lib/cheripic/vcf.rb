@@ -6,18 +6,17 @@ module Cheripic
   class VcfError < CheripicError; end
 
   require 'bio-samtools'
-  require 'bio-gngm'
 
   class Vcf
 
     def self.get_allele_freq(vcf_obj)
       # check if the vcf is from samtools (has DP4 and AF1 fields in INFO)
       if vcf_obj.info.key?('DP4')
-        # freq = vcf_obj.info['DP4'].split(',')
-        # depth = freq.inject { | sum, n | sum + n.to_f }
-        # alt = freq[2].to_f + freq[3].to_f
-        # allele_freq = alt / depth
-        allele_freq = vcf_obj.non_ref_allele_freq
+        freq = vcf_obj.info['DP4'].split(',')
+        depth = freq.inject { | sum, n | sum.to_f + n.to_f }
+        alt = freq[2].to_f + freq[3].to_f
+        allele_freq = alt / depth
+        # allele_freq = vcf_obj.non_ref_allele_freq
       # check if the vcf is from VarScan (has RD, AD and FREQ fields in FORMAT)
       elsif vcf_obj.samples['1'].key?('RD')
         alt = vcf_obj.samples['1']['AD'].to_f
@@ -49,7 +48,7 @@ module Cheripic
       File.foreach(vcf_file) do |line|
         next if line =~ /^#/
         v = Bio::DB::Vcf.new(line)
-        if v.variant?
+        unless v.alt == '.'
           allele_freq = get_allele_freq(v)
           if allele_freq.between?(ht_low, ht_high)
             var_pos[v.chrom][:het][v.pos] = allele_freq
