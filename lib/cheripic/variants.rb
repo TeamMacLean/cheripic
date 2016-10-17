@@ -191,19 +191,23 @@ module Cheripic
         next if positions.empty?
         contig_obj = @pileups[id]
         positions.each do | pos |
-          pileuparray = []
-          bamobject.mpileup(:r => "#{id}:#{pos}-#{pos}", :Q => bq, :q => mq, :B => true) do | pileup |
-            if max_d == 0 or pileup.coverage <= max_d
-              pileuparray << pileup
-            else
-              logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
-            end
+          command = "#{bamobject.samtools} mpileup -r #{id}:#{pos}-#{pos} -Q #{bq} -q #{mq} -B -f #{@params.assembly} #{bamfile}"
+          stdout, stderr, status = Open3.capture3(command)
+          unless status.success?
+            logger.error "resulted in exit code #{status.exitstatus} using #{command}"
+            logger.error "stderr output is: #{stderr}"
+            raise CheripicError
           end
-          # pileups not matching set mapping quality or 'N'
-          if pileuparray.empty? or pileuparray[0].to_s =~ /^\t0/
+          stdout.chomp!
+          if stdout == '' or stdout.split("\t")[3].to_i == 0 or stdout =~ /^\t0/
             logger.info "pileup data empty for\t#{id}\t#{pos}"
           else
-            contig_obj.send(sym).store(pos, Pileup.new(pileuparray[0].to_s))
+            pileup = Pileup.new(stdout)
+            unless max_d == 0 or pileup.coverage <= max_d
+              logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
+              next
+            end
+            contig_obj.send(sym).store(pos, pileup)
           end
         end
       end
