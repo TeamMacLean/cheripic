@@ -45,7 +45,7 @@ module Cheripic
         opt :assembly, 'Assembly file in FASTA format',
             :short => '-f',
             :type => String
-        opt :input_format, 'bulk and parent alignment file format types - set either pileup or bam',
+        opt :input_format, 'bulk and parent alignment file format types - set either pileup or bam or vcf',
             :short => '-F',
             :type => String,
             :default => 'pileup'
@@ -79,8 +79,8 @@ module Cheripic
 if set zero no calculation will be made from bam file.\nsetting this value will override user set max depth",
             :type => Integer,
             :default => 5
-        opt :maxdepth, "maximum read depth at a position to consider for variant calls
-if set to zero no user max depth will be used",
+        opt :maxdepth, 'maximum read depth at a position to consider for variant calls
+if set to zero no user max depth will be used',
             :type => Integer,
             :default => 0
         opt :min_non_ref_count, 'minimum read depth supporting non reference base at each position',

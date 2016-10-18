@@ -110,6 +110,8 @@ module Cheripic
           logger.info "processing #{input} file"
           if @params.input_format == 'pileup'
             extract_pileup(infile, input)
+          elsif @params.input_format == 'vcf'
+            extract_vcfs(infile, input)
           else
             extract_bam_pileup(infile, input)
           end
@@ -119,35 +121,28 @@ module Cheripic
       @pileups_analyzed = true
     end
 
-    # Bam object is read and each contig mean and std deviation of depth calculated
-    # @param bamobject [Bio::DB::Sam]
-    # Open3 capture returns string output, so careful not to give whole genome or big contigs for depth analysis
-    def set_max_depth(bamobject, bamfile)
-      logger.info "processing #{bamfile} file for depth"
-      all_depths = []
-      bq = Options.base_quality
-      mq = Options.mapping_quality
-      @assembly.each_key do | id |
-        contig_obj = @assembly[id]
-        len = contig_obj.length
-        data = bamobject.depth(:r => "#{id}", :Q => bq, :q => mq)
-        depths = []
-        data.split("\n").each do |line|
-          info = line.split("\t")
-          depths << info[2].to_i
+    # Input vcf file is read and positions are selected that pass the thresholds
+    # @param vcffile [String] path to the pileup file to read
+    # @param sym [Symbol] Symbol of the pileup file used to write selected variants
+    # pileup information to respective ContigPileups object
+    def extract_vcfs(vcffile, sym)
+      # check if user has set max depth or set to zero to ignore
+      max_d = Options.maxdepth
+      # read vcf file and process each variant
+      File.foreach(vcffile) do |line|
+        next if line =~ /^#/
+        v = Bio::DB::Vcf.new(line)
+        unless v.alt == '.'
+          pileup_string = Vcf.to_pileup(v)
+          pileup = Pileup.new(pileup_string)
+          unless max_d == 0 or pileup.coverage <= max_d
+            logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
+            next
+          end
+          contig_obj = @pileups[pileup.ref_name]
+          contig_obj.send(sym).store(pileup.pos, pileup)
         end
-        variance = 0
-        mean_depth = depths.reduce(0, :+) / len.to_f
-        depths.each do |value|
-          variance += (value.to_f - mean_depth)**2
-        end
-        all_depths << mean_depth
-        contig_obj.sd_depth = Math.sqrt(variance)
-        contig_obj.mean_depth = mean_depth
       end
-      # setting max depth as 3 times the average depth
-      mean_coverage = all_depths.reduce(0, :+) / @assembly.length.to_f
-      Options.maxdepth = Options.max_d_multiple * mean_coverage
     end
 
     # Input pileup file is read and positions are selected that pass the thresholds
@@ -211,6 +206,37 @@ module Cheripic
           end
         end
       end
+    end
+
+    # Bam object is read and each contig mean and std deviation of depth calculated
+    # @param bamobject [Bio::DB::Sam]
+    # Open3 capture returns string output, so careful not to give whole genome or big contigs for depth analysis
+    def set_max_depth(bamobject, bamfile)
+      logger.info "processing #{bamfile} file for depth"
+      all_depths = []
+      bq = Options.base_quality
+      mq = Options.mapping_quality
+      @assembly.each_key do | id |
+        contig_obj = @assembly[id]
+        len = contig_obj.length
+        data = bamobject.depth(:r => "#{id}", :Q => bq, :q => mq)
+        depths = []
+        data.split("\n").each do |line|
+          info = line.split("\t")
+          depths << info[2].to_i
+        end
+        variance = 0
+        mean_depth = depths.reduce(0, :+) / len.to_f
+        depths.each do |value|
+          variance += (value.to_f - mean_depth)**2
+        end
+        all_depths << mean_depth
+        contig_obj.sd_depth = Math.sqrt(variance)
+        contig_obj.mean_depth = mean_depth
+      end
+      # setting max depth as 3 times the average depth
+      mean_coverage = all_depths.reduce(0, :+) / @assembly.length.to_f
+      Options.maxdepth = Options.max_d_multiple * mean_coverage
     end
 
     # Once pileup files are analysed and variants are extracted from each bulk;
