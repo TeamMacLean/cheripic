@@ -86,13 +86,18 @@ module Cheripic
     def self.to_pileup(v)
       ref, alt = Vcf.get_allele_depth(v)
       depth = ref + alt
-      base_adj  = ''
-      if v.ref.length > v.alt.length
-        base_adj = '-'
-      elsif v.ref.length < v.alt.length
-        base_adj = '+'
+      alt_bases  = '' + v.alt
+      ref_len = v.ref.length
+      alt_len = v.alt.length
+      if ref_len > alt_len
+        seq = v.ref[alt_len..-1]
+        alt_bases = '-' + seq.length.to_s + seq
+        v.ref = v.ref[0]
+      elsif ref_len < alt_len
+        seq = v.alt[ref_len..-1]
+        alt_bases = '+' + seq.length.to_s + seq
       end
-      bases = ('.' * ref) + ( (base_adj + v.alt) * alt)
+      bases = ('.' * ref) + ( alt_bases * alt)
       quality = 'D' * depth
       [v.chrom, v.pos, v.ref, depth, bases, quality].join("\t")
     end

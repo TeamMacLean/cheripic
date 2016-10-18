@@ -41,6 +41,30 @@ class VcfTest < Minitest::Test
       end
     end
 
+    should 'get a pileup object from vcf object' do
+      line = '20	14370	.	G	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51'
+      vcf_obj = Bio::DB::Vcf.new(line)
+      pileup_output = Cheripic::Vcf.to_pileup(vcf_obj)
+      pileup_expected = "20\t14370\tG\t14\t.......AAAAAAA\tDDDDDDDDDDDDDD"
+      assert_equal(pileup_expected, pileup_output)
+    end
+
+    should 'get a deletion pileup object from vcf object' do
+      line = '20	14370	.	AGT	A	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51'
+      vcf_obj = Bio::DB::Vcf.new(line)
+      pileup_output = Cheripic::Vcf.to_pileup(vcf_obj)
+      pileup_expected = "20\t14370\tA\t14\t.......-2GT-2GT-2GT-2GT-2GT-2GT-2GT\tDDDDDDDDDDDDDD"
+      assert_equal(pileup_expected, pileup_output)
+    end
+
+    should 'get a insertion pileup object from vcf object' do
+      line = '20	14370	.	G	GAT	29	PASS	NS=3;DP=14;AF=0.5;DB;H2	GT:GQ:DP:HQ	0|0:48:1:51,51'
+      vcf_obj = Bio::DB::Vcf.new(line)
+      pileup_output = Cheripic::Vcf.to_pileup(vcf_obj)
+      pileup_expected = "20\t14370\tG\t14\t.......+2AT+2AT+2AT+2AT+2AT+2AT+2AT\tDDDDDDDDDDDDDD"
+      assert_equal(pileup_expected, pileup_output)
+    end
+
   end
 
 end
