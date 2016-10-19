@@ -53,12 +53,14 @@ module Cheripic
             :short => '-a',
             :type => String
         opt :mut_bulk_vcf, 'vcf file for variants from mutant/trait of interest bulk 1',
-            :type => String
+            :type => String,
+            :default => ''
         opt :bg_bulk, 'Pileup or sorted BAM file alignments from background/wildtype bulk 2',
             :short => '-b',
             :type => String
         opt :bg_bulk_vcf, 'vcf file for variants from background/wildtype bulk 2',
-            :type => String
+            :type => String,
+            :default => ''
         opt :output, 'custom name tag to include in the output file name',
             :default => 'cheripic_results'
         opt :loglevel, 'Choose any one of "info / warn / debug" level for logs generated',
@@ -90,8 +92,8 @@ if set to zero no user max depth will be used',
             :type => Integer,
             :default => 3
         opt :ambiguous_ref_bases, 'including variant at completely ambiguous bases in the reference',
-            :type => FalseClass,
-            :default => false
+            :type => String,
+            :default => 'false'
         opt :mapping_quality, 'minimum mapping quality of read covering the position',
             :short => '-q',
             :type => Integer,
@@ -107,15 +109,15 @@ if set to zero no user max depth will be used',
             :type => String,
             :default => 'back'
         opt :use_all_contigs, 'option to select all contigs or only contigs containing variants for analysis',
-            :type => FalseClass,
-            :default => false
+            :type => String,
+            :default => 'false'
         opt :include_low_hmes, 'option to include or discard variants from contigs with
 low hme-score or bfr score to list in the final output',
-            :type => FalseClass,
-            :default => false
+            :type => String,
+            :default => 'false'
         opt :polyploidy, 'Set if the data input is from polyploids',
-            :type => FalseClass,
-            :default => false
+            :type => String,
+            :default => 'false'
         opt :mut_parent, 'Pileup or sorted BAM file alignments from mutant/trait of interest parent',
             :short => '-p',
             :type => String,
@@ -187,9 +189,33 @@ low hme-score or bfr score to list in the final output',
 
     # calls other methods to check if command line inputs are valid
     def check_arguments
+      convert_boolean_strings
       check_output
       check_log_level
+      check_input_entry
       check_input_types
+    end
+
+    # convert true or false options to boolean
+    def convert_boolean_strings
+      %i{ambiguous_ref_bases use_all_contigs include_low_hmes polyploidy}.each do | symbol |
+        if @options.key?(symbol)
+          @options[symbol] = @options[symbol] == 'false' ? false : true
+        end
+      end
+    end
+
+    # set file given option to false if input is nil or None or ''
+    def check_input_entry
+      %i{assembly mut_bulk bg_bulk mut_bulk_vcf bg_bulk_vcf mut_parent bg_parent repeats_file}.each do | symbol |
+        if @options.key?(symbol)
+          if @options[symbol] == 'None'
+            param = (symbol.to_s + '_given').to_sym
+            @options[symbol] = ''
+            @options.delete(param)
+          end
+        end
+      end
     end
 
     # checks input files based on bulk file type
