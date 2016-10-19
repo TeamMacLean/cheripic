@@ -1,21 +1,25 @@
-<tool id="cheripic" name="CHERIPIC" version="1.2.0">
+<tool id="cheripic" name="CHERIPIC" version="1.2.6">
 
   <description>CHERIPIC</description>
 
-  <version_command>cheripic -v</version_command>
+  <version_command>/full_path_to/cheripic -v</version_command>
 
   <command>
 <![CDATA[
-    cheripic
+    /full_path_to/cheripic
     --assembly $assembly
+    --input-format $input_format
     --mut-bulk $mut_bulk
     --bg-bulk $bg_bulk
-    --output $output
+    --mut-bulk-vcf $mut_bulk_vcf
+    --bg-bulk-vcf $bg_bulk_vcf
     --loglevel $loglevel
     --hmes-adjust $hmes_adjust
     --htlow $ht_low
     --hthigh $ht_high
     --mindepth $min_depth
+    --max-d-multiple $max_d_multiple
+    --maxdepth $max_depth
     --min-non-ref-count $min_non_ref_count
     --min-indel-count-support $min_indel_count_support
     --ambiguous-ref-bases $ambiguous_ref_bases
@@ -28,17 +32,26 @@
     --polyploidy $polyploidy
     --mut-parent $mut_parent
     --bg-parent $bg_parent
+    --repeats-file $repeats_file
     --bfr-adjust $bfr_adjust
     --sel-seq-len $sel_seq_len
+    &> output_log.txt
 ]]>
   </command>
 
   <inputs>
     <param name="assembly" type="data" format="fasta" label="Input Assembly file" help="Select Assembly fasta file" />
-    <param name="mut_bulk" type="data" format="pileup" label="mutant bulk pileup file" help="Select mutant bulk pileup file" />
-    <param name="bg_bulk" type="data" format="pileup" label="background bulk pileup file" min="1" multiple="true" help="Select background bulk pileup file" />
-    <param name="loglevel" type="select" optional="true" label="analysis log level" help="choose between info, warn and debug levels">
-      <option value="info" selected="true">info </option>
+    <param name="input_format" type="select" optional="true" label="input file format" help="choose between vcf, bam and pileup format" >
+      <option value="vcf" selected="true">vcf</option>
+      <option value="bam">bam</option>
+      <option value="pileup">pileup</option>
+    </param>
+    <param name="mut_bulk" type="data" label="mutant bulk input file" help="Select mutant bulk input file" />
+    <param name="bg_bulk" type="data" label="background bulk input file" help="Select background bulk input file" />
+    <param name="mut_bulk_vcf" type="data" optional="true" label="mutant bulk input vcf file" help="Select mutant bulk input vcf file" />
+    <param name="bg_bulk_vcf" type="data" optional="true" label="background bulk input vcf file" help="Select background bulk input vcf file" />
+    <param name="loglevel" type="select" optional="true" label="analysis log level" help="choose between info, warn and debug levels" >
+      <option value="info" selected="true">info</option>
       <option value="warn">warnings</option>
       <option value="debug">debug</option>
     </param>
@@ -50,6 +63,10 @@
            label="heterozygosity high limit" help="upper limit to heterozygosity allele fraction" />
     <param name="min_depth" size="4" type="integer" optional="true" value="6" min="1" max="8000"
            label="minimum read coverage" help="minimum read depth to conisder a position for variant calls" />
+    <param name="max_d_multiple" size="4" type="integer" optional="true" value="5" min="0" max="100"
+           label="multiplication factor avg read coverage" help="multiplication factor for average coverage to calculate maximum read coverage" />
+    <param name="max_depth" size="4" type="integer" optional="true" value="0" min="0" max="8000"
+           label="maximum read coverage" help="maximum read depth to conisder a position for variant calls" />
     <param name="min_non_ref_count" size="4" type="integer" optional="true" value="3" min="1" max="8000"
            label="minimum alternate read coverage" help="minimum read depth supporting non reference base at each position" />
     <param name="min_indel_count_support" size="4" type="integer" optional="true" value="3" min="1" max="8000"
@@ -73,20 +90,22 @@
            help="option to include or discard variants from contigs with low hme-score or bfr score to list in the final output" truevalue="true" falsevalue="false" />
     <param name="polyploidy" type="boolean" optional="true" checked="false" label="polyploid data"
            help="Set if the input data is from polyploids" truevalue="true" falsevalue="false" />
-    <param name="mut-parent" type="data" optional="true" format="pileup" label="mutant parent pileup file" help="Select mutant parent pileup file" />
-    <param name="bg-parent" type="data" optional="true" format="pileup" label="background parent pileup file" help="Select background parent pileup file" />
+    <param name="mut_parent" type="data" optional="true" format="pileup" label="mutant parent pileup file" help="Select mutant parent pileup file" />
+    <param name="bg_parent" type="data" optional="true" format="pileup" label="background parent pileup file" help="Select background parent pileup file" />
+    <param name="repeats_file" type="data" optional="true" format="txt" label="Repeat masker output file" help="Repeat masker output file of repeat positions" />
 
     <param name="bfr_adjust" size="4" type="float" optional="true" value="0.05" min="0.01" max="1.0"
            label="bfr score adjuster" help="factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)" />
     <param name="sel_seq_len" size="4" type="integer" optional="true" value="50" min="10" max="250"
            label="selected variant seq length out" help="sequence length to print from either side of selected variants (default: 50)" />
-
-    <param name="output" type="text" size="30" value="cheripic_results" label="tag for output filename" help="write a tag to include with output filename" />
   </inputs>
 
   <outputs>
-    <data name="output_1" format="txt" file="${output}_selected_hme_variants.txt" />
-    <data name="output_2" format="txt" file="${output}_selected_bfr_variants.txt" />
+    <data name="output1" format="txt" from_work_dir="output_log.txt" label="cheripic log file" />
+    <data name="output2" format="txt" from_work_dir="cheripic_results_selected_hme_variants.txt" label="selected hmes variants" />
+    <data name="output3" format="txt" from_work_dir="cheripic_results_selected_bfr_variants.txt" label="selected bfr variants" >
+      <filter>polyploidy == "true"</filter>
+    </data>
   </outputs>
 
   <tests>
@@ -154,15 +173,22 @@ All of the options have a default value. You can change any of them. All of the 
 
 OPTIONS:
   -f, --assembly               Assembly file in FASTA format
-  -F, --input-format           bulk and parent alignment file format types - set either pileup or bam (default: pileup)
+  -F, --input-format           bulk and parent alignment file format types - set either pileup or bam or vcf (default: pileup)
   -a, --mut-bulk               Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1
+  --mut-bulk-vcf               vcf file for variants from mutant/trait of interest bulk 1
   -b, --bg-bulk                Pileup or sorted BAM file alignments from background/wildtype bulk 2
-  --output                     Directory to store results, will be created if not existing (default: cheripic_results)
+  --bg-bulk-vcf                vcf file for variants from background/wildtype bulk 2
+  --output                     custom name tag to include in the output file name (default: cheripic_results)
   --loglevel                   Choose any one of "info / warn / debug" level for logs generated (default: debug)
   --hmes-adjust                factor added to snp count of each contig to adjust for hme score calculations (default: 0.5)
   --htlow                      lower level for categorizing heterozygosity (default: 0.2)
   --hthigh                     high level for categorizing heterozygosity (default: 0.9)
-  --mindepth                   minimum read depth to conisder a position for variant calls (default: 6)
+  --mindepth                   minimum read depth at a position to consider for variant calls (default: 6)
+  --max-d-multiple             multiplication factor for average coverage to calculate maximum read coverage
+                                if set zero no calculation will be made from bam file.
+                                setting this value will override user set max depth (Default: 5)
+  --maxdepth                   maximum read depth at a position to consider for variant calls
+                                if set to zero no user max depth will be used (default: 0)
   --min-non-ref-count          minimum read depth supporting non reference base at each position (default: 3)
   --min-indel-count-support    minimum read depth supporting an indel at each position (default: 3)
   --ambiguous-ref-bases        including variant at completely ambiguous bases in the reference
@@ -171,10 +197,12 @@ OPTIONS:
   --noise                      praportion of reads for a variant to conisder as noise (default: 0.1)
   --cross-type                 type of cross used to generated mapping population - back or out (default: back)
   --use-all-contigs            option to select all contigs or only contigs containing variants for analysis
-  --include-low-hmes           option to include or discard variants from contigs with low hme-score or bfr score to list in the final output
+  --include-low-hmes           option to include or discard variants from contigs with
+                                low hme-score or bfr score to list in the final output
   --polyploidy                 Set if the data input is from polyploids
   -p, --mut-parent             Pileup or sorted BAM file alignments from mutant/trait of interest parent (default: )
   -r, --bg-parent              Pileup or sorted BAM file alignments from background/wildtype parent (default: )
+  -R, --repeats-file           repeat masker output file for the assembly  (default: )
   --bfr-adjust                 factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)
   --sel-seq-len                sequence length to print from either side of selected variants (default: 50)
 
@@ -190,7 +218,7 @@ Shyam Rallapalli
   </help>
 
   <citations>
-    <citation type="doi">10.1093/bioinformatics/btg1080</citation>
+    <citation type="doi">spaceholder</citation>
   </citations>
 
 </tool>
