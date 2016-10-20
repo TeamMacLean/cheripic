@@ -150,10 +150,16 @@ module Cheripic
     # @param sym [Symbol] Symbol of the pileup file used to write selected variants
     # pileup information to respective ContigPileups object
     def extract_pileup(pileupfile, sym)
+      # check if user has set max depth or set to zero to ignore
+      max_d = Options.maxdepth
       # read mpileup file and process each variant
       File.foreach(pileupfile) do |line|
         pileup = Pileup.new(line)
         if pileup.is_var
+          unless max_d == 0 or pileup.coverage <= max_d
+            logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
+            next
+          end
           contig_obj = @pileups[pileup.ref_name]
           contig_obj.send(sym).store(pileup.pos, pileup)
         end
