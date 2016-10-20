@@ -74,19 +74,21 @@ module Cheripic
       end
       # print selected variants that could be potential markers or mutation
       out_file = File.open(@options[pos_type], 'w')
-      out_file.puts "Score\tAlleleFreq\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
+      out_file.puts "Score\tAlleleFreq\tlength\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
       regions = Regions.new(@options.assembly)
       @variants.send(pos_type).each_key do | frag |
         contig_obj = @variants.assembly[frag]
         if pos_type == :hmes_frags
           positions = contig_obj.hm_pos.keys
+          score = contig_obj.hme_score
         else
           positions = contig_obj.hemi_pos.keys
+          score = contig_obj.bfr_score
         end
         positions.each do | pos |
           pileup = @variants.pileups[frag].mut_bulk[pos]
           seqs = regions.fetch_seq(frag,pos)
-          out_file.puts "#{contig_obj.hme_score}\t#{contig_obj.hm_pos[pos]}\t#{pileup.to_s.chomp}\t#{seqs[0]}\t#{pileup.consensus}\t#{seqs[1]}"
+          out_file.puts "#{score}\t#{contig_obj.hm_pos[pos]}\t#{contig_obj.length}\t#{pileup.to_s.chomp}\t#{seqs[0]}\t#{pileup.consensus}\t#{seqs[1]}"
         end
       end
       out_file.close
