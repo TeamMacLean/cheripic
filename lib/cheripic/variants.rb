@@ -126,8 +126,6 @@ module Cheripic
     # @param sym [Symbol] Symbol of the pileup file used to write selected variants
     # pileup information to respective ContigPileups object
     def extract_vcfs(vcffile, sym)
-      # check if user has set max depth or set to zero to ignore
-      max_d = Options.maxdepth
       # read vcf file and process each variant
       File.foreach(vcffile) do |line|
         next if line =~ /^#/
@@ -135,12 +133,7 @@ module Cheripic
         unless v.alt == '.'
           pileup_string = Vcf.to_pileup(v)
           pileup = Pileup.new(pileup_string)
-          unless max_d == 0 or pileup.coverage <= max_d
-            logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
-            next
-          end
-          contig_obj = @pileups[pileup.ref_name]
-          contig_obj.send(sym).store(pileup.pos, pileup)
+          store_pileup_info(pileup, sym)
         end
       end
     end
@@ -150,18 +143,11 @@ module Cheripic
     # @param sym [Symbol] Symbol of the pileup file used to write selected variants
     # pileup information to respective ContigPileups object
     def extract_pileup(pileupfile, sym)
-      # check if user has set max depth or set to zero to ignore
-      max_d = Options.maxdepth
       # read mpileup file and process each variant
       File.foreach(pileupfile) do |line|
         pileup = Pileup.new(line)
         if pileup.is_var
-          unless max_d == 0 or pileup.coverage <= max_d
-            logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
-            next
-          end
-          contig_obj = @pileups[pileup.ref_name]
-          contig_obj.send(sym).store(pileup.pos, pileup)
+          store_pileup_info(pileup, sym)
         end
       end
     end
@@ -176,21 +162,17 @@ module Cheripic
       bamobject = Bio::DB::Sam.new(:bam=>bamfile, :fasta=>@params.assembly)
       bamobject.index unless bamobject.indexed?
 
+      # or calculate from bamfile
+      set_max_depth(bamobject, bamfile) if Options.max_d_multiple > 0 and sym == :mut_bulk
       # check if user has set max depth or set to zero to ignore
       max_d = Options.maxdepth
-      # or calculate from bamfile
-      if Options.max_d_multiple > 0
-        set_max_depth(bamobject, bamfile)
-        max_d = Options.maxdepth
-        logger.info "max depth used for #{sym} file\t#{max_d}"
-      end
+      logger.info "max depth used for #{sym} file\t#{max_d}"
 
       @vcf_hash.each_key do | id |
         positions = @vcf_hash[id][:het].keys
         positions << @vcf_hash[id][:hom].keys
         positions.flatten!
         next if positions.empty?
-        contig_obj = @pileups[id]
         positions.each do | pos |
           command = "#{bamobject.samtools} mpileup -r #{id}:#{pos}-#{pos} -Q #{bq} -q #{mq} -B -f #{@params.assembly} #{bamfile}"
           stdout, stderr, status = Open3.capture3(command)
@@ -204,11 +186,7 @@ module Cheripic
             logger.info "pileup data empty for\t#{id}\t#{pos}"
           else
             pileup = Pileup.new(stdout)
-            unless max_d == 0 or pileup.coverage <= max_d
-              logger.info "pileup coverage is higher than max\t#{pileup.to_s}"
-              next
-            end
-            contig_obj.send(sym).store(pos, pileup)
+            store_pileup_info(pileup, sym)
           end
         end
       end
@@ -243,6 +221,20 @@ module Cheripic
       # setting max depth as 3 times the average depth
       mean_coverage = all_depths.reduce(0, :+) / @assembly.length.to_f
       Options.maxdepth = Options.max_d_multiple * mean_coverage
+    end
+
+    # stores pileup information provided to respective contig_pileup object using sym input
+    # @param pileup [Pileup] Pileup objects
+    # @param sym [Symbol] Symbol of the input file used to write selected variants
+    # pileup information stored to respective ContigPileups object
+    def store_pileup_info(pileup, sym)
+      unless Options.maxdepth == 0 or pileup.coverage <= Options.maxdepth
+        logger.info "pileup coverage is higher than max\t#{pileup.ref_name}\t#{pileup.pos}\t#{pileup.coverage}"
+        return nil
+      end
+      contig_obj = @pileups[pileup.ref_name]
+      contig_obj.send(sym).store(pileup.pos, pileup)
+
     end
 
     # Once pileup files are analysed and variants are extracted from each bulk;
