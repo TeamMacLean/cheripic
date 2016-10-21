@@ -64,7 +64,7 @@ module Cheripic
         opt :output, 'custom name tag to include in the output file name',
             :default => 'cheripic_results'
         opt :loglevel, 'Choose any one of "info / warn / debug" level for logs generated',
-            :default => 'debug'
+            :default => 'info'
         opt :hmes_adjust, 'factor added to snp count of each contig to adjust for hme score calculations',
             :type => Float,
             :default => 0.5

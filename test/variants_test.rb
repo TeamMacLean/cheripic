@@ -103,7 +103,7 @@ class VariantsTest < Minitest::Test
       File.open(filename, 'r').each do |line|
         info = line.split(/\t/)
         next if info[0] == 'Score'
-        selected[info[2]][info[3].to_i] = 1
+        selected[info[3]][info[4].to_i] = 1
       end
       expected = { 'CL22874Contig1' => { 332 => 1, 369 => 1, 370 => 1, 390 => 1, 396 => 1, 398 => 1, 424 => 1},
                    'scaffold6147' => { 294 => 1, 452 => 1, 469 => 1, 488 => 1, 511 => 1} }
