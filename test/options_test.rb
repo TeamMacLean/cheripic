@@ -68,6 +68,7 @@ class OptionsTest < Minitest::Test
           :sel_seq_len => 50
       }
       assert_equal(newset, Cheripic::Options::update(newset))
+      assert_equal(newset, Cheripic::Options::current_values)
     end
 
     should 'get udpated max depth' do

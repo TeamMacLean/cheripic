@@ -160,6 +160,11 @@ module Cheripic
       @user_settings = @def_settings
     end
 
+    # Resets the values of options to defaults
+    def self.current_values
+      @user_settings
+    end
+
   end
 
 end

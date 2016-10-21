@@ -54,6 +54,7 @@ module Cheripic
                 sel_seq_len}
       settings = inputs.select { |k| set2.include?(k) }
       Options.update(settings)
+      logger.debug "parameter values set\n#{Options.current_values.to_yaml}"
       @vars_extracted = false
       @has_run = false
     end
