@@ -4,35 +4,6 @@ require 'forwardable'
 
 module Cheripic
 
-  require 'bio-samtools'
-  require 'bio/db/sam'
-  require 'open3'
-
-  # An extension of Bio::DB::Sam object to modify depth method
-  class Bio::DB::Sam
-
-    # A method to retrieve depth information from bam object
-    # @param opts [Hash] a hash of following input options
-    #   b [File] list of positions or regions in BED format
-    #   l [INT] minQLen
-    #   q [INT] base quality threshold
-    #   Q [INT] mapping quality threshold
-    #   r [chr:from-to] region
-    # @returns a block with each line reporting sequence_name, position and depth
-    def depth(opts={})
-      command = form_opt_string(self.samtools, 'depth', opts)
-      # capture returns string output, so careful not to give whole genome or big contigs for depth analysis
-      stdout, stderr, status = Open3.capture3(command)
-      unless status.success?
-        logger.error "resulted in exit code #{status.exitstatus} using #{command}"
-        logger.error "stderr output is: #{stderr}"
-        raise CheripicError
-      end
-      # return stdout
-      stdout
-    end
-
-  end
 
   # Custom error handling for Variants class
   class VariantsError < CheripicError; end
@@ -175,13 +146,7 @@ module Cheripic
         next if positions.empty?
         positions.each do | pos |
           command = "#{bamobject.samtools} mpileup -r #{id}:#{pos}-#{pos} -Q #{bq} -q #{mq} -B -f #{@params.assembly} #{bamfile}"
-          stdout, stderr, status = Open3.capture3(command)
-          unless status.success?
-            logger.error "resulted in exit code #{status.exitstatus} using #{command}"
-            logger.error "stderr output is: #{stderr}"
-            raise CheripicError
-          end
-          stdout.chomp!
+          stdout = capture_command(command)
           if stdout == '' or stdout.split("\t")[3].to_i == 0 or stdout =~ /^\t0/
             logger.info "pileup data empty for\t#{id}\t#{pos}"
           else
@@ -203,7 +168,12 @@ module Cheripic
       @assembly.each_key do | id |
         contig_obj = @assembly[id]
         len = contig_obj.length
-        data = bamobject.depth(:r => "#{id}", :Q => bq, :q => mq)
+        command = "#{bamobject.samtools} depth -r #{id} -Q #{bq} -q #{mq} #{bamfile}"
+        data = capture_command(command)
+        if data == ''
+          logger.info "depth data empty for\t#{id}"
+          next
+        end
         depths = []
         data.split("\n").each do |line|
           info = line.split("\t")
@@ -221,6 +191,16 @@ module Cheripic
       # setting max depth as 3 times the average depth
       mean_coverage = all_depths.reduce(0, :+) / @assembly.length.to_f
       Options.maxdepth = Options.max_d_multiple * mean_coverage
+    end
+
+    def capture_command(command)
+      stdout, stderr, status = Open3.capture3(command)
+      unless status.success?
+        logger.error "resulted in exit code #{status.exitstatus} using #{command}"
+        logger.error "stderr output is: #{stderr}"
+        raise CheripicError
+      end
+      stdout.chomp!
     end
 
     # stores pileup information provided to respective contig_pileup object using sym input
