@@ -45,7 +45,7 @@ Running `cheripic` without any input at command line interface shows following h
 
 ```
 
-Cheripic v1.2.0
+Cheripic v1.2.6
 Authors: Shyam Rallapalli and Dan MacLean
 
 Description: Candidate mutation and closely linked marker selection for non reference genomes
@@ -53,35 +53,45 @@ Uses bulk segregant data from non-reference sequence genomes
 
 Inputs:
 1. Needs a reference fasta file of asssembly use for variant analysis
-2. Pileup files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
-3. If polyploid species, include of pileup from one or both parents
+2. Pileup/Bam files for mutant (phenotype of interest) bulks and background (wildtype phenotype) bulks
+3. If providing bam files, you have to include vcf files for the respective bulks
+4. If polyploid species, include pileup/bam files from one or both parents
 
 USAGE:
 cheripic <options>
 
 OPTIONS:
   -f, --assembly=<s>               Assembly file in FASTA format
-  -F, --input-format=<s>           bulk and parent alignment file format types - set either pileup or bam (default: pileup)
+  -F, --input-format=<s>           bulk and parent alignment file format types - set either pileup or bam or vcf (default: pileup)
   -a, --mut-bulk=<s>               Pileup or sorted BAM file alignments from mutant/trait of interest bulk 1
+  --mut-bulk-vcf=<s>               vcf file for variants from mutant/trait of interest bulk 1 (default: )
   -b, --bg-bulk=<s>                Pileup or sorted BAM file alignments from background/wildtype bulk 2
-  --output=<s>                     Directory to store results, will be created if not existing (default: cheripic_results)
+  --bg-bulk-vcf=<s>                vcf file for variants from background/wildtype bulk 2 (default: )
+  --output=<s>                     custom name tag to include in the output file name (default: cheripic_results)
   --loglevel=<s>                   Choose any one of "info / warn / debug" level for logs generated (default: debug)
   --hmes-adjust=<f>                factor added to snp count of each contig to adjust for hme score calculations (default: 0.5)
   --htlow=<f>                      lower level for categorizing heterozygosity (default: 0.2)
   --hthigh=<f>                     high level for categorizing heterozygosity (default: 0.9)
-  --mindepth=<i>                   minimum read depth to conisder a position for variant calls (default: 6)
+  --mindepth=<i>                   minimum read depth at a position to consider for variant calls (default: 6)
+  --max-d-multiple=<i>             multiplication factor for average coverage to calculate maximum read coverage
+                                   if set zero no calculation will be made from bam file.
+                                   setting this value will override user set max depth (Default: 5)
+  --maxdepth=<i>                   maximum read depth at a position to consider for variant calls
+                                   if set to zero no user max depth will be used (default: 0)
   --min-non-ref-count=<i>          minimum read depth supporting non reference base at each position (default: 3)
   --min-indel-count-support=<i>    minimum read depth supporting an indel at each position (default: 3)
-  --ambiguous-ref-bases            including variant at completely ambiguous bases in the reference
+  --ambiguous-ref-bases=<s>        including variant at completely ambiguous bases in the reference (default: false)
   -q, --mapping-quality=<i>        minimum mapping quality of read covering the position (default: 20)
   -Q, --base-quality=<i>           minimum base quality of bases covering the position (default: 15)
   --noise=<f>                      praportion of reads for a variant to conisder as noise (default: 0.1)
   --cross-type=<s>                 type of cross used to generated mapping population - back or out (default: back)
-  --use-all-contigs                option to select all contigs or only contigs containing variants for analysis
-  --include-low-hmes               option to include or discard variants from contigs with low hme-score or bfr score to list in the final output
-  --polyploidy                     Set if the data input is from polyploids
+  --use-all-contigs=<s>            option to select all contigs or only contigs containing variants for analysis (default: false)
+  --include-low-hmes=<s>           option to include or discard variants from contigs with
+                                   low hme-score or bfr score to list in the final output (default: false)
+  --polyploidy=<s>                 Set if the data input is from polyploids (default: false)
   -p, --mut-parent=<s>             Pileup or sorted BAM file alignments from mutant/trait of interest parent (default: )
   -r, --bg-parent=<s>              Pileup or sorted BAM file alignments from background/wildtype parent (default: )
+  -R, --repeats-file=<s>           repeat masker output file for the assembly  (default: )
   --bfr-adjust=<f>                 factor added to hemi snp frequency of each parent to adjust for bfr calculations (default: 0.05)
   --sel-seq-len=<i>                sequence length to print from either side of selected variants (default: 50)
   --examples                       shows some example commands with explanation
