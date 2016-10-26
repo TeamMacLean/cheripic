@@ -200,7 +200,7 @@ module Cheripic
         logger.error "stderr output is: #{stderr}"
         raise CheripicError
       end
-      stdout.chomp!
+      stdout.chomp
     end
 
     # stores pileup information provided to respective contig_pileup object using sym input
@@ -208,13 +208,16 @@ module Cheripic
     # @param sym [Symbol] Symbol of the input file used to write selected variants
     # pileup information stored to respective ContigPileups object
     def store_pileup_info(pileup, sym)
-      unless Options.maxdepth == 0 or pileup.coverage <= Options.maxdepth
-        logger.info "pileup coverage is higher than max\t#{pileup.ref_name}\t#{pileup.pos}\t#{pileup.coverage}"
-        return nil
+      # discarding variants with higher than max depth only for mut_bulk
+      if sym == :mut_bulk
+        unless Options.maxdepth == 0 or pileup.coverage <= Options.maxdepth
+          logger.info "pileup coverage is higher than max\t#{pileup.ref_name}\t#{pileup.pos}\t#{pileup.coverage}"
+          return nil
+        end
       end
       contig_obj = @pileups[pileup.ref_name]
       contig_obj.send(sym).store(pileup.pos, pileup)
-
+      nil
     end
 
     # Once pileup files are analysed and variants are extracted from each bulk;
