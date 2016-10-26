@@ -6,7 +6,10 @@ All significant changes to this project at each release are documented in this f
 #### Future changes to include
     
     1. option to take multiple background pileup files
-    2. option to run only using with vcf files only to increase speed of analysis for larger genomes
+
+#### [1.2.6] - 2016-10-26
+
+    1. option to run only using with vcf files as bulk inputs to increase speed of analysis for larger genomes
 
 #### [1.2.5] - 2016-10-17
 
