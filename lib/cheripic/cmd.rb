@@ -245,10 +245,17 @@ low hme-score or bfr score to list in the final output',
             end
           else
             file = @options[symbol]
-            @options[symbol] = File.expand_path(file)
-            # checks if a given file exists
-            unless File.exist?(file)
-              raise CheripicIOError.new "#{symbol} file, #{file} does not exist!"
+            if symbol == :bg_bulk or symbol == :bg_bulk_vcf
+              if file.include? ','
+                @options[symbol] = []
+                file.split(',').each do | infile |
+                  @options[symbol] << File.expand_path(infile)
+                  file_exist?(symbol, infile)
+                end
+              end
+            else
+              @options[symbol] = File.expand_path(file)
+              file_exist?(symbol, file)
             end
             check = 1
           end
@@ -257,6 +264,13 @@ low hme-score or bfr score to list in the final output',
           raise CheripicArgError.new "One of the options #{inputfiles}, must be specified. " +
                                        'Try --help for further help.'
         end
+      end
+    end
+
+    def file_exist?(symbol, file)
+      # checks if a given file exists
+      unless File.exist?(file)
+        raise CheripicIOError.new "#{symbol} file, #{file} does not exist!"
       end
     end
 
