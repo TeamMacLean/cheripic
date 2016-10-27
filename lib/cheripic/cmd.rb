@@ -235,22 +235,22 @@ low hme-score or bfr score to list in the final output',
 
     # checks if input files are valid
     def check_input_files(inputfiles)
-      check = 0
       inputfiles.each_key do | type |
         inputfiles[type].flatten!
+        check = 0
         inputfiles[type].each do | symbol |
-          if @options[symbol]
+          if @options[symbol] == nil or @options[symbol] == ''
+            if type == :required
+              raise CheripicArgError.new "Options #{inputfiles}, all must be specified. Try --help for further help."
+            end
+          else
             file = @options[symbol]
             @options[symbol] = File.expand_path(file)
-            next if type == :optional
-            if type == :required and not File.exist?(file)
-              raise CheripicIOError.new "#{symbol} file, #{file} does not exist: "
-            elsif type == :either and File.exist?(file)
-              check = 1
+            # checks if a given file exists
+            unless File.exist?(file)
+              raise CheripicIOError.new "#{symbol} file, #{file} does not exist!"
             end
-          elsif type == :required
-            raise CheripicArgError.new "Options #{inputfiles}, all must be specified. " +
-                                              'Try --help for further help.'
+            check = 1
           end
         end
         if type == :either and check == 0
