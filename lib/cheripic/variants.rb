@@ -78,18 +78,27 @@ module Cheripic
       %i{mut_bulk bg_bulk mut_parent bg_parent}.each do | input |
         infile = @params[input]
         if infile != ''
-          logger.info "processing #{input} file"
-          if @params.input_format == 'pileup'
-            extract_pileup(infile, input)
-          elsif @params.input_format == 'vcf'
-            extract_vcfs(infile, input)
+          if infile.kind_of?(Array) and input == :bg_bulk
+            infile.each do | file |
+              send_file_to_extract(file, input)
+            end
           else
-            extract_bam_pileup(infile, input)
+            send_file_to_extract(infile, input)
           end
         end
       end
-
       @pileups_analyzed = true
+    end
+
+    def send_file_to_extract(infile, input)
+      logger.info "processing #{input} file"
+      if @params.input_format == 'pileup'
+        extract_pileup(infile, input)
+      elsif @params.input_format == 'vcf'
+        extract_vcfs(infile, input)
+      else
+        extract_bam_pileup(infile, input)
+      end
     end
 
     # Input vcf file is read and positions are selected that pass the thresholds
