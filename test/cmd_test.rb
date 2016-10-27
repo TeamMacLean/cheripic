@@ -58,7 +58,7 @@ class CmdTest < Minitest::Test
 
     should 'fail if polyploid parent files are not provided' do
       assert_raises Cheripic::CheripicArgError do
-        Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --polyploidy true".split)
+        Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --mut-parent None --polyploidy true".split)
       end
     end
 

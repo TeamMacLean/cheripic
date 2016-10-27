@@ -5,16 +5,16 @@ class VariantsTest < Minitest::Test
   context 'variants_test' do
 
     setup do
-      @file1 = File.join(File.dirname(__FILE__), 'data', 'picked_fasta.fa')
-      @file2 = File.join(File.dirname(__FILE__), 'data', 'mut_bulk.pileup')
-      @file3 = File.join(File.dirname(__FILE__), 'data', 'wt_bulk.pileup')
-      @file4 = File.join(File.dirname(__FILE__), 'data', 'mut_parent.pileup')
-      @file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
+      file1 = File.join(File.dirname(__FILE__), 'data', 'picked_fasta.fa')
+      file2 = File.join(File.dirname(__FILE__), 'data', 'mut_bulk.pileup')
+      file3 = File.join(File.dirname(__FILE__), 'data', 'wt_bulk.pileup')
+      file4 = File.join(File.dirname(__FILE__), 'data', 'mut_parent.pileup')
+      file5 = File.join(File.dirname(__FILE__), 'data', 'wt_parent.pileup')
 
-      @testcmd = Cheripic::Cmd.new("--assembly #{@file1} --mut-bulk #{@file2} --bg-bulk #{@file3} --mut-parent #{@file4} --bg-parent #{@file5} --polyploidy true --output cheripic_results".split)
-      @options = @testcmd.options
-      Cheripic::Implementer.new(@options)
-      @variants = Cheripic::Variants.new(@options)
+      testcmd = Cheripic::Cmd.new("--assembly #{file1} --mut-bulk #{file2} --bg-bulk #{file3} --mut-parent #{file4} --bg-parent #{file5} --polyploidy true --output cheripic_results".split)
+      options = testcmd.options
+      Cheripic::Implementer.new(options)
+      @variants = Cheripic::Variants.new(options)
     end
 
     teardown do
@@ -119,7 +119,7 @@ class VariantsTest < Minitest::Test
       file9 = File.join(File.dirname(__FILE__), 'data', 'maize_data', 'mutant_selected_sorted.bam')
       file10 = File.join(File.dirname(__FILE__), 'data', 'maize_data', 'wildtype_selected_sorted.bam')
       testcmd = Cheripic::Cmd.new("--assembly #{@file6} -F bam --mut-bulk #{file9} --bg-bulk #{file10}
---mut-bulk-vcf #{@file7} --bg-bulk-vcf #{@file8} --max-d-multiple 0 --output cheripic_results".split)
+--mut-bulk-vcf #{@file7} --bg-bulk-vcf #{@file8},#{@file8} --max-d-multiple 0 --output cheripic_results".split)
       implement = Cheripic::Implementer.new(testcmd.options)
       implement.extract_vars
       implement.process_variants(:hmes_frags)
@@ -130,7 +130,7 @@ class VariantsTest < Minitest::Test
         next if info[0] == 'Score'
         selected[info[3]][info[4].to_i] = 1
       end
-      expected = {"TR1882_c0_g1_i1"=>{257=>1, 258=>1, 245=>1}, "TR10422_c0_g1_i1"=>{307=>1, 308=>1, 322=>1, 346=>1, 355=>1}}
+      expected = {'TR1882_c0_g1_i1'=>{257=>1, 258=>1, 245=>1}, 'TR10422_c0_g1_i1'=>{307=>1, 308=>1, 322=>1, 346=>1, 355=>1}}
       assert_equal(expected, selected)
     end
 
@@ -148,7 +148,7 @@ class VariantsTest < Minitest::Test
     end
 
     should 'get variants from vcf files' do
-      testcmd = Cheripic::Cmd.new("--assembly #{@file6} -F vcf --mut-bulk #{@file7} --bg-bulk #{@file8} --output cheripic_results".split)
+      testcmd = Cheripic::Cmd.new("--assembly #{@file6} -F vcf --mut-bulk #{@file7} --bg-bulk #{@file8},#{@file8} --output cheripic_results".split)
       implement = Cheripic::Implementer.new(testcmd.options)
       implement.extract_vars
       implement.process_variants(:hmes_frags)
@@ -159,7 +159,7 @@ class VariantsTest < Minitest::Test
         next if info[0] == 'Score'
         selected[info[3]][info[4].to_i] = 1
       end
-      expected = {"TR1882_c0_g1_i1"=>{257=>1, 258=>1, 245=>1}, "TR10422_c0_g1_i1"=>{307=>1, 308=>1, 322=>1, 346=>1, 355=>1}}
+      expected = {'TR1882_c0_g1_i1'=>{257=>1, 258=>1, 245=>1}, 'TR10422_c0_g1_i1'=>{307=>1, 308=>1, 322=>1, 346=>1, 355=>1}}
       assert_equal(expected, selected)
     end
 
