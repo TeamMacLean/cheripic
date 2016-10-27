@@ -68,8 +68,19 @@ module Cheripic
     def self.filtering(mutant_vcf, bgbulk_vcf)
       var_pos_mut = get_vars(mutant_vcf)
       return var_pos_mut if bgbulk_vcf == ''
-      var_pos_bg = get_vars(bgbulk_vcf)
+      if bgbulk_vcf.kind_of?(Array)
+        bgbulk_vcf.each do | file |
+          var_pos_bg = get_vars(file)
+          var_pos_mut = subtract(var_pos_mut,var_pos_bg)
+        end
+      else
+        var_pos_bg = get_vars(bgbulk_vcf)
+        return subtract(var_pos_mut,var_pos_bg)
+      end
+      var_pos_mut
+    end
 
+    def self.subtract(var_pos_mut, var_pos_bg)
       # if both bulks have homozygous mutations at same positions then deleting them
       var_pos_mut.each_key do | frag |
         positions = var_pos_mut[frag][:hom].keys
