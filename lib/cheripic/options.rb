@@ -9,8 +9,8 @@ module Cheripic
     # Default parameter settings
     @def_settings = {
         :hmes_adjust => 0.5,
-        :htlow => 0.2,
-        :hthigh => 0.9,
+        :htlow => 0.25,
+        :hthigh => 0.75,
         :mindepth => 6,
         :maxdepth => 0,
         :max_d_multiple => 5,

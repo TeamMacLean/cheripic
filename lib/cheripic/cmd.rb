@@ -70,10 +70,10 @@ module Cheripic
             :default => 0.5
         opt :htlow, 'lower level for categorizing heterozygosity',
             :type => Float,
-            :default => 0.2
+            :default => 0.25
         opt :hthigh, 'high level for categorizing heterozygosity',
             :type => Float,
-            :default => 0.9
+            :default => 0.75
         opt :mindepth, 'minimum read depth at a position to consider for variant calls',
             :type => Integer,
             :default => 6

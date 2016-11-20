@@ -7,8 +7,8 @@ class OptionsTest < Minitest::Test
     should 'get default params' do
       defaults = {
           :hmes_adjust => 0.5,
-          :htlow => 0.2,
-          :hthigh => 0.9,
+          :htlow => 0.25,
+          :hthigh => 0.75,
           :mindepth => 6,
           :maxdepth => 0,
           :max_d_multiple=>5,
@@ -27,8 +27,8 @@ class OptionsTest < Minitest::Test
       }
       assert_equal(defaults, Cheripic::Options::defaults)
       assert_equal(0.5, Cheripic::Options::hmes_adjust)
-      assert_equal(0.2, Cheripic::Options::htlow)
-      assert_equal(0.9, Cheripic::Options::hthigh)
+      assert_equal(0.25, Cheripic::Options::htlow)
+      assert_equal(0.75, Cheripic::Options::hthigh)
       assert_equal(6, Cheripic::Options::mindepth)
       assert_equal(0, Cheripic::Options::maxdepth)
       assert_equal(5, Cheripic::Options::max_d_multiple)
