@@ -105,7 +105,7 @@ class VariantsTest < Minitest::Test
       selected =  Hash.new { |h,k| h[k] = {} }
       File.open(filename, 'r').each do |line|
         info = line.split(/\t/)
-        next if info[0] == 'Score'
+        next if info[0] == 'HMES'
         selected[info[3]][info[4].to_i] = 1
       end
       expected = { 'CL22874Contig1' => { 332 => 1, 369 => 1, 370 => 1, 390 => 1, 396 => 1, 398 => 1, 424 => 1},
@@ -127,7 +127,7 @@ class VariantsTest < Minitest::Test
       selected =  Hash.new { |h,k| h[k] = {} }
       File.open(filename, 'r').each do |line|
         info = line.split(/\t/)
-        next if info[0] == 'Score'
+        next if info[0] == 'HMES'
         selected[info[3]][info[4].to_i] = 1
       end
       expected = {'TR1882_c0_g1_i1'=>{257=>1, 258=>1, 245=>1}, 'TR10422_c0_g1_i1'=>{307=>1, 308=>1, 322=>1, 346=>1, 355=>1}}
@@ -156,7 +156,7 @@ class VariantsTest < Minitest::Test
       selected =  Hash.new { |h,k| h[k] = {} }
       File.open(filename, 'r').each do |line|
         info = line.split(/\t/)
-        next if info[0] == 'Score'
+        next if info[0] == 'HMES'
         selected[info[3]][info[4].to_i] = 1
       end
       expected = {'TR1882_c0_g1_i1'=>{257=>1, 258=>1, 245=>1}, 'TR10422_c0_g1_i1'=>{307=>1, 308=>1, 322=>1, 346=>1, 355=>1}}

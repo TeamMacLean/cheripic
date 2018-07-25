@@ -75,7 +75,7 @@ module Cheripic
       end
       # print selected variants that could be potential markers or mutation
       out_file = File.open(@options[pos_type], 'w')
-      out_file.puts "Score\tAlleleFreq\tlength\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
+      out_file.puts "HMES\tAlleleFreq\tlength\tseq_id\tposition\tref_base\tcoverage\tbases\tbase_quals\tsequence_left\tAlt_seq\tsequence_right"
       regions = Regions.new(@options.assembly)
       @variants.send(pos_type).each_key do | frag |
         contig_obj = @variants.assembly[frag]

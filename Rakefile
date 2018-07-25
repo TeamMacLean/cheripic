@@ -64,6 +64,7 @@ def create_package(target)
   sh "mkdir -p #{package_dir}/lib/app/bin"
   sh "cp bin/cheripic #{package_dir}/lib/app/bin/"
   sh "cp -R lib #{package_dir}/lib/app/"
+  sh "unzip test/data/test_data.zip -d #{package_dir}/"
   sh "mkdir #{package_dir}/lib/app/ruby"
   sh "tar -xzf packaging/traveling-ruby-#{TRAVELING_RUBY_VERSION}-#{target}.tar.gz -C #{package_dir}/lib/app/ruby"
   sh "cp packaging/wrapper.sh #{package_dir}/cheripic"
